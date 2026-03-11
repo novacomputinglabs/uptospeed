@@ -3,7 +3,7 @@ import path from 'node:path';
 
 export const APP_NAME = 'UP TO SPEED';
 export const INSTALLER_PACKAGE_NAME = 'uptospeed-desktop-installer';
-export const DEFAULT_GITHUB_REPO = process.env.UPTOSPEED_RELEASE_REPO || 'uptospeedhq/uptospeed';
+export const DEFAULT_GITHUB_REPO = process.env.UPTOSPEED_RELEASE_REPO || 'novacomputinglabs/uptospeed';
 export const DEFAULT_RELEASE_TAG = 'latest';
 export const DESKTOP_ARTIFACT_BASENAME = 'uptospeed-desktop';
 

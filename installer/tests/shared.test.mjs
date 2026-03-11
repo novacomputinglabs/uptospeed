@@ -47,12 +47,12 @@ test('pickDesktopZipAsset selects the matching platform zip', () => {
 
 test('releaseApiUrl handles latest and tagged releases', () => {
   assert.equal(
-    releaseApiUrl('uptospeedhq/uptospeed', 'latest'),
-    'https://api.github.com/repos/uptospeedhq/uptospeed/releases/latest',
+    releaseApiUrl('novacomputinglabs/uptospeed', 'latest'),
+    'https://api.github.com/repos/novacomputinglabs/uptospeed/releases/latest',
   );
   assert.equal(
-    releaseApiUrl('uptospeedhq/uptospeed', 'desktop-v0.1.0'),
-    'https://api.github.com/repos/uptospeedhq/uptospeed/releases/tags/desktop-v0.1.0',
+    releaseApiUrl('novacomputinglabs/uptospeed', 'desktop-v0.1.0'),
+    'https://api.github.com/repos/novacomputinglabs/uptospeed/releases/tags/desktop-v0.1.0',
   );
 });
 
