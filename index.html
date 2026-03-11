@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UP TO SPEED</title>
+  <meta name="description" content="UP TO SPEED — a locally-run workspace for producing and managing creative projects with optional Flow Production Tracking sync">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="brand-tokens.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell" id="appShell">
+    <aside class="app-sidebar">
+      <div class="sidebar-profile" id="sidebarProfile">
+        <button class="sidebar-profile-trigger" id="sidebarProfileTrigger" onclick="toggleSidebarProfileMenu()" aria-haspopup="menu" aria-expanded="false" title="Workspace settings">
+          <span class="sidebar-profile-avatar" id="sidebarProfileInitials">UTS</span>
+          <span class="sidebar-profile-copy">
+            <span class="sidebar-profile-name" id="sidebarProfileName">UP TO SPEED</span>
+            <span class="sidebar-profile-subtitle" id="sidebarProfileSubtitle">Creative workspace</span>
+          </span>
+          <svg class="icon sidebar-profile-caret" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="sidebar-profile-menu" id="sidebarProfileMenu" role="menu" aria-hidden="true">
+          <button class="sidebar-profile-menu-item" role="menuitem" onclick="handleSidebarProfileAction('settings')">
+            <span>Settings</span>
+            <span class="sidebar-profile-menu-hint">G then S</span>
+          </button>
+          <button class="sidebar-profile-menu-item" role="menuitem" onclick="handleSidebarProfileAction('invite')">
+            <span>Invite and manage members</span>
+          </button>
+          <div class="sidebar-profile-menu-divider"></div>
+          <button class="sidebar-profile-menu-item" role="menuitem" onclick="handleSidebarProfileAction('download')">
+            <span>Download desktop app</span>
+          </button>
+          <div class="sidebar-profile-menu-divider"></div>
+          <button class="sidebar-profile-menu-item" role="menuitem" onclick="handleSidebarProfileAction('switchWorkspace')">
+            <span>Switch workspace</span>
+            <span class="sidebar-profile-menu-hint">O then W</span>
+          </button>
+          <button class="sidebar-profile-menu-item" role="menuitem" onclick="handleSidebarProfileAction('logout')">
+            <span>Log out</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <p class="sidebar-section-title">Workspace</p>
+        <div class="filter-group sidebar-filter-group">
+          <select id="workspaceSource" onchange="onProjectSelectorChange()" aria-label="Selected project">
+            <option value="__workspace_local_mock__">Local mock workspace</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <p class="sidebar-section-title">Views</p>
+        <button class="sidebar-nav-btn active" id="sidebarKanbanBtn" onclick="setViewMode('kanban')">
+          <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          <span>Kanban View</span>
+        </button>
+        <button class="sidebar-nav-btn" id="sidebarListBtn" onclick="setViewMode('list')">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+          <span>List View</span>
+        </button>
+        <button class="sidebar-nav-btn" id="sidebarWorkloadBtn" onclick="openWorkloadDashboard()">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Workload Dashboard</span>
+        </button>
+        <button class="sidebar-nav-btn" id="sidebarAgentPermissionsBtn" onclick="openAgentPermissionsView()">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M9 12h6M9 16h6M9 8h6M4 4h16v16H4z"/></svg>
+          <span>Agent Permissions</span>
+        </button>
+        <button class="sidebar-nav-btn" id="sidebarEndeavorsBtn" onclick="toggleEndeavorsPanel()">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+          <span>Endeavors</span>
+        </button>
+        <button class="sidebar-nav-btn" onclick="openRoundsMode()">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M16 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM2 20a6 6 0 0 1 12 0M22 20a6 6 0 0 0-4-5.65"/></svg>
+          <span>Rounds Mode</span>
+        </button>
+      </div>
+
+      <div class="sidebar-section sidebar-section-grow">
+        <p class="sidebar-section-title">Actions</p>
+        <button id="newTaskButton" class="sidebar-nav-btn" type="button" onclick="openCreateModal()" disabled title="Checking runtime…">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          <span>New Task</span>
+        </button>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="btn btn-icon" onclick="openSettingsModal()" title="Settings">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+        <button class="btn btn-icon" onclick="toggleShortcutsModal()" title="Keyboard shortcuts (?)">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+        </button>
+      </div>
+    </aside>
+
+    <div class="app-main">
+      <!-- Header -->
+      <header>
+        <div class="logo">UP TO SPEED <span id="viewModeLabel">/ Kanban</span></div>
+        <div class="header-meta" id="dataInfo">Loading...</div>
+        <div class="header-actions">
+          <button class="btn btn-icon sidebar-collapse-btn" id="sidebarCollapseBtn" onclick="toggleSidebarCollapse()" title="Collapse sidebar" aria-label="Collapse sidebar">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18M10 9l-3 3 3 3"/></svg>
+          </button>
+          <button class="btn btn-icon" id="undoBtn" onclick="undo()" title="Undo (Cmd+Z)" disabled>
+            <svg class="icon" viewBox="0 0 24 24"><path d="M3 10h10a5 5 0 0 1 5 5v2M3 10l4-4M3 10l4 4"/></svg>
+          </button>
+          <button class="btn btn-icon" id="redoBtn" onclick="redo()" title="Redo (Cmd+Shift+Z)" disabled>
+            <svg class="icon" viewBox="0 0 24 24"><path d="M21 10H11a5 5 0 0 0-5 5v2M21 10l-4-4M21 10l-4 4"/></svg>
+          </button>
+          <input type="file" id="csvInput" accept=".csv">
+          <button class="btn" onclick="document.getElementById('csvInput').click()">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Import
+          </button>
+          <button class="btn" onclick="exportCSV()">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            Export
+          </button>
+          <button class="btn btn-icon" id="workloadPanelQuickBtn" onclick="toggleWorkloadPanel()" title="Quick workload panel (W)">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M4 19h16M4 5h8M4 12h12M15 5h5M17 12h3M8 19h6"/></svg>
+          </button>
+          <button class="btn btn-icon agent-chat-toggle" id="agentChatToggleBtn" onclick="toggleAgentChatDock()" title="Agent chat" aria-label="Agent chat">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M4 4h16v12H7l-3 4z"/></svg>
+            <span class="agent-chat-pending-badge" id="agentChatPendingBadge" hidden aria-hidden="true"></span>
+          </button>
+          <div class="view-toggle topbar-view-toggle">
+            <button class="btn btn-icon view-toggle-btn active" id="viewKanban" onclick="setViewMode('kanban')" title="Kanban View">
+              <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            </button>
+            <button class="btn btn-icon view-toggle-btn" id="viewList" onclick="setViewMode('list')" title="List View">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            </button>
+            <button class="btn btn-icon view-toggle-btn" id="viewWorkload" onclick="setViewMode('workload')" title="Workload View">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20v-4"/></svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div class="agent-runtime-banner status-unknown" id="agentRuntimeBanner" role="status" aria-live="polite">
+        <div class="agent-runtime-banner-copy">
+          <p class="agent-runtime-banner-label">Checking runtime…</p>
+          <p class="agent-runtime-banner-detail">Checking local agent services.</p>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="filter-group">
+          <label for="filterAsset">Asset</label>
+          <select id="filterAsset" onchange="renderBoard()">
+            <option value="">All Assets</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterArtist">Artist</label>
+          <select id="filterArtist" onchange="renderBoard()">
+            <option value="">All Artists</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterDept">Dept</label>
+          <select id="filterDept" onchange="renderBoard()">
+            <option value="">All Depts</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterStatus">Status</label>
+          <select id="filterStatus" onchange="renderBoard()">
+            <option value="">All</option>
+            <option value="on-target">On Target</option>
+            <option value="delay">Potential Delay</option>
+            <option value="push">Push</option>
+            <option value="approved">Approved</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterSearch">Search</label>
+          <input type="text" id="filterSearch" placeholder="Search all fields..." oninput="renderBoard()">
+        </div>
+        <div class="filter-group">
+          <label for="filterEndeavorMode">Endeavors</label>
+          <select id="filterEndeavorMode" onchange="onEndeavorFilterModeChange()">
+            <option value="all">All tasks</option>
+            <option value="any">Any endeavor</option>
+            <option value="specific">Specific endeavor</option>
+          </select>
+        </div>
+        <div class="filter-group" id="filterEndeavorGroup">
+          <label for="filterEndeavor">Endeavor</label>
+          <select id="filterEndeavor" onchange="onEndeavorFilterChange()">
+            <option value="">Select endeavor</option>
+          </select>
+        </div>
+        <div class="toolbar-spacer"></div>
+        <button class="btn" onclick="clearAllFilters()">Clear Filters</button>
+      </div>
+
+      <!-- Board -->
+      <main class="board" id="board">
+        <div class="loading loading-workspace" role="status" aria-live="polite">
+          <div class="loading-robot-shell" aria-hidden="true">
+            <svg class="loading-robot" viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+              <g class="robot-float">
+                <line class="robot-antenna" x1="80" y1="20" x2="80" y2="11" />
+                <circle class="robot-antenna-tip" cx="80" cy="8" r="3.5" />
+                <rect class="robot-head" x="47" y="24" width="66" height="42" rx="12" />
+                <circle class="robot-eye robot-eye-left" cx="68" cy="45" r="4.8" />
+                <circle class="robot-eye robot-eye-right" cx="92" cy="45" r="4.8" />
+                <rect class="robot-mouth" x="64" y="55" width="32" height="5" rx="2.5" />
+                <rect class="robot-body" x="39" y="70" width="82" height="30" rx="11" />
+                <line class="robot-arm robot-arm-left" x1="39" y1="83" x2="24" y2="76" />
+                <line class="robot-arm robot-arm-right" x1="121" y1="83" x2="136" y2="76" />
+                <rect class="robot-panel" x="62" y="79" width="36" height="12" rx="6" />
+                <circle class="robot-panel-dot" cx="72" cy="85" r="1.8" />
+                <circle class="robot-panel-dot" cx="80" cy="85" r="1.8" />
+                <circle class="robot-panel-dot" cx="88" cy="85" r="1.8" />
+              </g>
+              <path class="robot-scan robot-scan-a" d="M15 36h22" />
+              <path class="robot-scan robot-scan-b" d="M121 31h24" />
+              <path class="robot-scan robot-scan-c" d="M127 95h20" />
+            </svg>
+          </div>
+          <p class="loading-title">Loading Workspace</p>
+          <p class="loading-line" id="loadingWorkspaceLine">
+            Autonomous scheduler online. Untangling your next available windows.
+          </p>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Endeavors Panel -->
+  <aside class="panel panel-wide" id="endeavorsPanel">
+    <div class="panel-header">
+      <h2>Endeavors</h2>
+      <button class="panel-close" onclick="toggleEndeavorsPanel()" aria-label="Close panel">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="panel-content">
+      <div class="panel-section">
+        <label for="endeavorTitle">Title</label>
+        <input type="text" id="endeavorTitle" placeholder="Improve Publish Reliability">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="endeavorEmoji">Emoji (optional)</label>
+          <input type="text" id="endeavorEmoji" maxlength="6" placeholder="🚀">
+        </div>
+        <div class="form-group">
+          <label for="endeavorColor">Color</label>
+          <input type="color" id="endeavorColor" value="#818cf8">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="endeavorProject">Project</label>
+          <select id="endeavorProject"></select>
+        </div>
+        <div class="form-group">
+          <label for="endeavorOwner">Owner</label>
+          <select id="endeavorOwner">
+            <option value="">Unassigned</option>
+          </select>
+        </div>
+      </div>
+      <div class="panel-section">
+        <label for="endeavorParent">Parent Endeavor</label>
+        <select id="endeavorParent">
+          <option value="">No parent</option>
+        </select>
+      </div>
+      <div class="panel-section">
+        <label for="endeavorOverview">Overview</label>
+        <textarea id="endeavorOverview" rows="4" placeholder="What this endeavor should accomplish and why."></textarea>
+      </div>
+      <div class="panel-actions">
+        <button id="endeavorNewButton" class="btn" type="button" onclick="resetEndeavorEditor()">New</button>
+        <button id="endeavorSaveButton" class="btn btn-primary" type="button" onclick="saveEndeavorFromPanel()">Save</button>
+        <button id="endeavorDeleteButton" class="btn btn-danger" type="button" onclick="deleteSelectedEndeavorFromPanel()">Delete</button>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-value" id="endeavorMetricTaskCount">0</div>
+          <div class="stat-label">Tasks</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="endeavorMetricDays">0</div>
+          <div class="stat-label">Days</div>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-value" id="endeavorMetricProgress">0%</div>
+          <div class="stat-label">Progress</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="endeavorMetricStatus">Planned</div>
+          <div class="stat-label">Status</div>
+        </div>
+      </div>
+      <div class="panel-section">
+        <label>Target Date</label>
+        <div class="panel-metric-text" id="endeavorMetricTargetDate">—</div>
+      </div>
+      <button id="endeavorClearTasksButton" class="btn" type="button" onclick="clearSelectedEndeavorAssignments()" style="width:100%;justify-content:center;">
+        Clear Selected Endeavor Tasks
+      </button>
+      <div class="endeavor-tree" id="endeavorTree"></div>
+    </div>
+  </aside>
+
+
+  <!-- Workload Panel -->
+  <aside class="panel panel-wide" id="workloadPanel">
+    <div class="panel-header">
+      <h2>Workload Overview</h2>
+      <button class="panel-close" onclick="toggleWorkloadPanel()" aria-label="Close panel">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="panel-content">
+      <div class="workload-controls">
+        <div class="workload-date-range">
+          <div class="form-group">
+            <label for="workloadStart">From</label>
+            <input type="date" id="workloadStart" onchange="updateWorkloadRange()">
+          </div>
+          <div class="form-group">
+            <label for="workloadEnd">To</label>
+            <input type="date" id="workloadEnd" onchange="updateWorkloadRange()">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="autoBalanceWorkload()">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6L5.6 18.4"/></svg>
+          Auto Balance
+        </button>
+        <button class="btn" onclick="openWorkloadDashboard()">
+          Open Full Dashboard
+        </button>
+      </div>
+      <div class="workload-stats">
+        <div class="stat-box">
+          <div class="stat-value" id="artistCount">0</div>
+          <div class="stat-label">Artists</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value stat-warning" id="overallocatedCount">0</div>
+          <div class="stat-label">Overallocated</div>
+        </div>
+      </div>
+      <div class="workload-legend">
+        <span class="legend-item"><span class="legend-dot under"></span> Under 80%</span>
+        <span class="legend-item"><span class="legend-dot full"></span> 80-100%</span>
+        <span class="legend-item"><span class="legend-dot over"></span> 100-120%</span>
+        <span class="legend-item"><span class="legend-dot critical"></span> Over 120%</span>
+      </div>
+      <div class="workload-grid" id="workloadContent">
+        <p style="color:var(--text-muted);text-align:center;padding:40px;">Loading workload data...</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Balance Suggestions Modal -->
+  <div class="modal-backdrop" id="balanceModal" role="dialog" aria-labelledby="balanceModalTitle" aria-modal="true">
+    <div class="modal" style="width:520px;">
+      <div class="modal-header">
+        <h3 id="balanceModalTitle">Balance Suggestions</h3>
+        <button class="panel-close" onclick="closeBalanceModal()" aria-label="Close">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="balanceSuggestions">
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeBalanceModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="applyBalanceSuggestions()">Apply Selected</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Task Modal -->
+  <div class="modal-backdrop" id="editModal" role="dialog" aria-labelledby="editModalTitle" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="editModalTitle">Edit Task</h3>
+        <button class="panel-close" onclick="closeEditModal()" aria-label="Close">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="editTaskName">Task Name</label>
+          <input type="text" id="editTaskName">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editAssignedTo">Assigned To</label>
+            <input type="text" id="editAssignedTo">
+          </div>
+          <div class="form-group">
+            <label for="editAsset">Asset</label>
+            <input type="text" id="editAsset">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editDept">Department</label>
+            <select id="editDept">
+              <option value="">Select Department</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="editStatus">Status</label>
+            <select id="editStatus">
+              <option value="hld">Hold</option>
+              <option value="sch">Scheduled</option>
+              <option value="ip">In Progress</option>
+              <option value="pqc">PQC</option>
+              <option value="review">Review</option>
+              <option value="cmp">Complete</option>
+              <option value="apr">Approved</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label for="editStart">Start Date</label>
+            <input type="date" id="editStart">
+          </div>
+          <div class="form-group">
+            <label for="editEnd">End Date</label>
+            <input type="date" id="editEnd">
+          </div>
+          <div class="form-group">
+            <label for="editDuration">Duration</label>
+            <input type="number" id="editDuration" readonly>
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label for="editAllocation">% Allocation</label>
+            <input type="number" id="editAllocation" min="0" max="100" step="5" placeholder="100">
+          </div>
+          <div class="form-group">
+            <label for="editETA">Presentation ETA</label>
+            <input type="date" id="editETA">
+          </div>
+          <div class="form-group">
+            <label for="editTargetStatus">Target Status</label>
+            <select id="editTargetStatus">
+              <option value="ON TARGET">On Target</option>
+              <option value="INTERNAL - POTENTIAL DELAY">Potential Delay</option>
+              <option value="INTERNAL - CONFIRMED DELAY">Confirmed Delay</option>
+              <option value="PUSH">Push</option>
+              <option value="APPROVED">Approved</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="editNotes">Production Notes</label>
+          <textarea id="editNotes" onfocus="handleDeptProdNoteFocus(this)"></textarea>
+        </div>
+        <div class="task-planning-section">
+          <div class="task-planning-section-head">
+            <h4>Planning Graph</h4>
+            <p>Structured fields for milestones, approvals, and execution state.</p>
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label for="editProjectStage">Project Stage</label>
+              <input type="text" id="editProjectStage" placeholder="Pitch, Delivery, Internal review">
+            </div>
+            <div class="form-group">
+              <label for="editLocation">Location</label>
+              <input type="text" id="editLocation" placeholder="Workspace or sequence">
+            </div>
+            <div class="form-group">
+              <label for="editDeadline">Deadline</label>
+              <input type="date" id="editDeadline">
+            </div>
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label for="editPriority">Priority</label>
+              <select id="editPriority">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="editRiskLevel">Risk</label>
+              <select id="editRiskLevel">
+                <option value="none" selected>None</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="editMilestone">Milestone</label>
+              <input type="text" id="editMilestone" placeholder="Existing title or new milestone">
+            </div>
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label for="editReviewer">Reviewer</label>
+              <input type="text" id="editReviewer" placeholder="Reviewer name or id">
+            </div>
+            <div class="form-group">
+              <label for="editApprover">Approver</label>
+              <input type="text" id="editApprover" placeholder="Approver name or id">
+            </div>
+            <div class="form-group">
+              <label for="editDeptEstimate">Dept Est</label>
+              <input type="text" id="editDeptEstimate" placeholder="3d or 24h">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="editTotalWork">Total Work</label>
+              <input type="text" id="editTotalWork" placeholder="Total effort">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="editAcceptanceCriteria">Acceptance Criteria</label>
+            <textarea id="editAcceptanceCriteria" placeholder="What has to be true before this task is complete?"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" onclick="deleteTask(state.editingTaskId)">Delete</button>
+        <div style="flex:1;"></div>
+        <button class="btn" onclick="closeEditModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveTaskEdit()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Task Modal -->
+  <div class="modal-backdrop" id="createModal" role="dialog" aria-labelledby="createModalTitle" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="createModalTitle">New Task</h3>
+        <button class="panel-close" onclick="closeCreateModal()" aria-label="Close">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="createAsset">Asset *</label>
+            <select id="createAsset" required>
+              <option value="">Select Asset</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="createDept">Department *</label>
+            <select id="createDept" required>
+              <option value="">Select Department</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="createTaskName">Task Name</label>
+          <input type="text" id="createTaskName" placeholder="Auto-generated or enter manually">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="createAssignedTo">Assigned To</label>
+            <select id="createAssignedTo">
+              <option value="">Select Artist</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="createStatus">Status</label>
+            <select id="createStatus">
+              <option value="hld">Hold</option>
+              <option value="sch" selected>Scheduled</option>
+              <option value="ip">In Progress</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="createStart">Start Date</label>
+            <input type="date" id="createStart">
+          </div>
+          <div class="form-group">
+            <label for="createEnd">End Date</label>
+            <input type="date" id="createEnd">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="createNotes">Production Notes</label>
+          <textarea id="createNotes" onfocus="handleDeptProdNoteFocus(this)"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="createDescription">Task Description</label>
+          <textarea id="createDescription" placeholder="Describe the task..."></textarea>
+        </div>
+        <div class="task-planning-section">
+          <div class="task-planning-section-head">
+            <h4>Planning Graph</h4>
+            <p>Optional structured fields for milestones, approvals, and risk.</p>
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label for="createProjectStage">Project Stage</label>
+              <input type="text" id="createProjectStage" placeholder="Pitch, Delivery, Internal review">
+            </div>
+            <div class="form-group">
+              <label for="createLocation">Location</label>
+              <input type="text" id="createLocation" placeholder="Workspace or sequence">
+            </div>
+            <div class="form-group">
+              <label for="createDeadline">Deadline</label>
+              <input type="date" id="createDeadline">
+            </div>
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label for="createPriority">Priority</label>
+              <select id="createPriority">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="createRiskLevel">Risk</label>
+              <select id="createRiskLevel">
+                <option value="none" selected>None</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="createMilestone">Milestone</label>
+              <input type="text" id="createMilestone" placeholder="Existing title or new milestone">
+            </div>
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label for="createReviewer">Reviewer</label>
+              <input type="text" id="createReviewer" placeholder="Reviewer name or id">
+            </div>
+            <div class="form-group">
+              <label for="createApprover">Approver</label>
+              <input type="text" id="createApprover" placeholder="Approver name or id">
+            </div>
+            <div class="form-group">
+              <label for="createDeptEstimate">Dept Est</label>
+              <input type="text" id="createDeptEstimate" placeholder="3d or 24h">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="createTotalWork">Total Work</label>
+              <input type="text" id="createTotalWork" placeholder="Total effort">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="createAcceptanceCriteria">Acceptance Criteria</label>
+            <textarea id="createAcceptanceCriteria" placeholder="What has to be true before this task is complete?"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeCreateModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="createTask()">Create Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Modal -->
+  <div class="modal-backdrop" id="shortcutsModal" role="dialog" aria-labelledby="shortcutsTitle" aria-modal="true">
+    <div class="modal" style="width:380px;">
+      <div class="modal-header">
+        <h3 id="shortcutsTitle">Keyboard Shortcuts</h3>
+        <button class="panel-close" onclick="closeShortcutsModal()" aria-label="Close">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="shortcuts-list">
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Quick search (Spotlight)</span>
+            <div class="shortcut-keys"><span class="shortcut-key">⌘</span><span class="shortcut-key">K</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">New task</span>
+            <div class="shortcut-keys"><span class="shortcut-key">N</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Toggle endeavors panel</span>
+            <div class="shortcut-keys"><span class="shortcut-key">S</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Toggle workload panel (Kanban/List)</span>
+            <div class="shortcut-keys"><span class="shortcut-key">W</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Open workload dashboard</span>
+            <div class="shortcut-keys"><span class="shortcut-key">⇧</span><span class="shortcut-key">W</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Open Gantt chart</span>
+            <div class="shortcut-keys"><span class="shortcut-key">G</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Toggle List/Kanban view</span>
+            <div class="shortcut-keys"><span class="shortcut-key">L</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Focus search</span>
+            <div class="shortcut-keys"><span class="shortcut-key">/</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Toggle performance overlay</span>
+            <div class="shortcut-keys"><span class="shortcut-key">⇧</span><span class="shortcut-key">P</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Edit selected task</span>
+            <div class="shortcut-keys"><span class="shortcut-key">E</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Multi-select tasks</span>
+            <div class="shortcut-keys"><span class="shortcut-key">⌘/Ctrl</span><span class="shortcut-key">Click</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Range select tasks</span>
+            <div class="shortcut-keys"><span class="shortcut-key">⇧</span><span class="shortcut-key">Click</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Bulk edit list cell (selected)</span>
+            <div class="shortcut-keys"><span class="shortcut-key">Right-click</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Manage endeavors (selected)</span>
+            <div class="shortcut-keys"><span class="shortcut-key">Space</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Delete selected task</span>
+            <div class="shortcut-keys"><span class="shortcut-key">⌫</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Undo</span>
+            <div class="shortcut-keys"><span class="shortcut-key">⌘</span><span class="shortcut-key">Z</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Redo</span>
+            <div class="shortcut-keys"><span class="shortcut-key">⌘</span><span class="shortcut-key">⇧</span><span class="shortcut-key">Z</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Close modal/panel or clear filters</span>
+            <div class="shortcut-keys"><span class="shortcut-key">Esc</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-desc">Rounds (Stand-Up) mode</span>
+            <div class="shortcut-keys"><span class="shortcut-key">R</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rounds (Stand-Up) Mode Overlay -->
+  <div class="rounds-overlay" id="roundsOverlay">
+    <div class="rounds-header">
+      <div class="rounds-title">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Rounds
+      </div>
+      <div class="rounds-nav">
+        <button class="btn btn-icon" onclick="roundsPrevArtist()" title="Previous artist (←)">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span class="rounds-artist-counter" id="roundsCounter">1 / 1</span>
+        <button class="btn btn-icon" onclick="roundsNextArtist()" title="Next artist (→)">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+      <div class="rounds-controls">
+        <select id="roundsEndeavorMode" onchange="renderRoundsView()">
+          <option value="all">All tasks</option>
+          <option value="any">Any endeavor</option>
+          <option value="specific">Specific endeavor</option>
+        </select>
+        <select id="roundsEndeavor" onchange="renderRoundsView()">
+          <option value="">Select endeavor</option>
+        </select>
+        <select id="roundsDeptFilter" onchange="renderRoundsView()">
+          <option value="">All Departments</option>
+        </select>
+      </div>
+      <button class="rounds-close" onclick="closeRoundsMode()" aria-label="Close Rounds">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="rounds-content" id="roundsContent">
+      <!-- Artist cards rendered here -->
+    </div>
+    <div class="rounds-footer">
+      <div class="rounds-hint">
+        <span class="shortcut-key">←</span> <span class="shortcut-key">→</span> Navigate artists
+        <span style="margin-left:16px;"><span class="shortcut-key">↑</span> <span class="shortcut-key">↓</span> Scroll tasks</span>
+        <span style="margin-left:16px;"><span class="shortcut-key">Esc</span> Exit</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gantt Chart Overlay -->
+  <div class="gantt-overlay" id="ganttOverlay">
+    <div class="gantt-header">
+      <div class="gantt-title">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18"/></svg>
+        Gantt Chart
+      </div>
+      <div class="gantt-controls">
+        <button class="btn btn-icon" onclick="ganttZoomOut()" title="Zoom out">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/></svg>
+        </button>
+        <span class="gantt-zoom-label" id="ganttZoomLabel">Week</span>
+        <button class="btn btn-icon" onclick="ganttZoomIn()" title="Zoom in">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <button class="btn" onclick="ganttScrollToToday()">Today</button>
+      </div>
+      <button class="gantt-close" onclick="closeGanttChart()" aria-label="Close Gantt">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="gantt-container">
+      <div class="gantt-sidebar" id="ganttSidebar"></div>
+      <div class="gantt-timeline-wrapper" id="ganttTimelineWrapper">
+        <div class="gantt-timeline-header" id="ganttTimelineHeader"></div>
+        <div class="gantt-timeline" id="ganttTimeline"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drop Overlay -->
+  <div class="drop-overlay" id="dropOverlay">
+    <div class="drop-zone">
+      <svg class="drop-icon" viewBox="0 0 24 24">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+      </svg>
+      <div class="drop-title">Drop CSV file to import</div>
+      <div class="drop-subtitle">Release to import tasks</div>
+    </div>
+  </div>
+
+  <!-- Spotlight / Command Palette -->
+  <div class="spotlight-backdrop" id="spotlightBackdrop" role="dialog" aria-labelledby="spotlightTitle" aria-modal="true">
+    <div class="spotlight">
+      <div class="spotlight-input-wrapper">
+        <svg class="icon spotlight-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" id="spotlightInput" placeholder="Search tasks, artists, departments..." autocomplete="off" aria-label="Search">
+        <div class="spotlight-hint">
+          <span class="shortcut-key">Tab</span> add
+          <span class="shortcut-key">↵</span> apply
+          <span class="shortcut-key">esc</span> close
+        </div>
+      </div>
+      <div class="spotlight-results" id="spotlightResults">
+        <!-- Results populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Submit Modal -->
+  <div class="modal-backdrop" id="submitModal" role="dialog" aria-labelledby="submitModalTitle" aria-modal="true">
+    <div class="modal" style="width:480px;">
+      <div class="modal-header">
+        <h3 id="submitModalTitle">Submit Tasks</h3>
+        <button class="panel-close" onclick="closeSubmitModal()" aria-label="Close">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-muted);margin-bottom:16px;">Export current task data. This will save all tasks with their latest updates.</p>
+        <div class="stats-grid" style="margin-bottom:16px;">
+          <div class="stat-box">
+            <div class="stat-value" id="submitTaskCount">0</div>
+            <div class="stat-label">Tasks</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="submitModifiedCount">0</div>
+            <div class="stat-label">Modified</div>
+          </div>
+        </div>
+        <div class="submit-section" style="background:var(--bg);border-radius:8px;padding:16px;border:1px solid var(--border-subtle);margin-bottom:16px;">
+          <label class="checkbox-label" style="margin-bottom:12px;">
+            <input type="checkbox" id="includeRoundsReport" onchange="toggleRoundsEmailSection()">
+            Send Rounds Report Email
+          </label>
+          <p style="color:var(--text-muted);font-size:11px;margin-left:24px;margin-bottom:12px;">Generates a stakeholder-friendly summary with status overview and production notes.</p>
+          <div id="roundsEmailSection" style="display:none;margin-top:12px;">
+            <div class="form-group" style="margin-bottom:8px;">
+              <label for="roundsEmailTo">Send To</label>
+              <input type="email" id="roundsEmailTo" value="" placeholder="team@example.com">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label for="roundsEmailSubject">Subject</label>
+              <input type="text" id="roundsEmailSubject" value="" placeholder="Auto-generated based on date">
+            </div>
+          </div>
+        </div>
+        <div class="submit-summary" id="submitSummary" style="display:none;background:var(--surface-raised);border-radius:8px;padding:12px;font-size:11px;color:var(--text-muted);">
+          <!-- Summary stats populated by JS -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeSubmitModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitTasks()">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-backdrop" id="settingsModal" role="dialog" aria-labelledby="settingsModalTitle" aria-modal="true">
+    <div class="modal" style="width:560px;">
+      <div class="modal-header">
+        <h3 id="settingsModalTitle">Settings</h3>
+        <button class="panel-close" onclick="closeSettingsModal()" aria-label="Close">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="settingsUserName">Your Name</label>
+          <input type="text" id="settingsUserName" placeholder="e.g. Jane Doe">
+          <p class="form-hint">Shown as the profile title in the sidebar.</p>
+        </div>
+        <div class="form-group">
+          <label for="settingsPrefix">Dept Prod Note Prefix</label>
+          <input type="text" id="settingsPrefix" placeholder="e.g. WKLY">
+          <p class="form-hint">Prefix added to daily notes (e.g., "WKLY 01/29: Note text")</p>
+        </div>
+        <div class="form-group">
+          <label for="settingsTheme">Theme</label>
+          <select id="settingsTheme">
+            <option value="default">Default (Warm Dark)</option>
+            <option value="classic">Classic (Black & White)</option>
+            <option value="light">Light (Spreadsheet)</option>
+          </select>
+        </div>
+        <label class="checkbox-label" style="margin-top:12px;">
+          <input type="checkbox" id="settingsAutoSave" checked>
+          Auto-save to browser storage
+        </label>
+        <p class="form-hint" style="margin-left:24px;">Automatically saves your work every 5 seconds</p>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-subtle);">
+          <div style="font-weight:600;color:var(--text-secondary);margin-bottom:10px;">Flow Production Tracking</div>
+          <button class="btn btn-primary" onclick="openOnboardingModal({ startStep: 2 })" style="width:100%;justify-content:center;">
+            Connect to Flow Production Tracking…
+          </button>
+          <button class="btn" id="shotgridLogoutBtn" onclick="logoutToOnboarding()" style="width:100%;justify-content:center;margin-top:8px;display:none;">
+            Sign out
+          </button>
+          <p class="form-hint" id="shotgridHealthStatus" style="margin-top:10px;"></p>
+          <p class="form-hint" id="shotgridActorStatus" style="margin-top:6px;">Current actor: none - Last fallback: none</p>
+          <p class="form-hint" style="margin-top:6px;">
+            Remembered account: <span id="settingsShotGridAccountLabel">None</span><br>
+            Auth mode: <span id="settingsShotGridPolicyLabel">Script only</span>
+          </p>
+          <button class="btn" id="shotgridForgetAccountBtn" onclick="forgetShotGridRememberedAccount()" style="width:100%;justify-content:center;margin-top:8px;">
+            Forget remembered account
+          </button>
+          <details class="settings-advanced" style="margin-top:10px;">
+            <summary>Advanced</summary>
+            <div class="form-group" style="margin-top:10px;">
+              <label for="settingsShotGridServerUrl">Server URL</label>
+              <input type="text" id="settingsShotGridServerUrl" placeholder="http://127.0.0.1:7331">
+              <p class="form-hint">Leave blank when you open the app at the same server URL</p>
+            </div>
+            <label class="checkbox-label" style="margin-top:10px;">
+              <input type="checkbox" id="settingsShotGridAutoSync">
+              Auto-sync on load
+            </label>
+            <label class="checkbox-label" style="margin-top:10px;">
+              <input type="checkbox" id="settingsShotGridLiveUpdates" checked>
+              Live updates
+            </label>
+            <label class="checkbox-label" style="margin-top:10px;">
+              <input type="checkbox" id="settingsShotGridAutoPush" checked>
+              Auto-push changes
+            </label>
+            <p class="form-hint" style="margin-left:24px;">Auto-push batches edits and keeps Flow Production Tracking + board in sync.</p>
+            <label class="checkbox-label" style="margin-top:10px;">
+              <input type="checkbox" id="settingsShotGridAllowScriptFallback">
+              Allow script fallback when user auth is unavailable
+            </label>
+            <p class="form-hint" style="margin-left:24px;">Disabled by default. When enabled, queued writes may run as script if your user session cannot be resumed.</p>
+          </details>
+        </div>
+        <div class="agent-settings-section">
+          <div class="agent-settings-header">
+            <div class="agent-settings-title-row">
+              <h4 class="agent-settings-title">Agents</h4>
+              <p class="agent-settings-user-id">User: <span id="settingsLocalUserId">-</span></p>
+            </div>
+            <p class="form-hint">Connect providers and tune how agents run.</p>
+          </div>
+
+          <div class="agent-settings-card">
+            <p class="agent-settings-card-title">Providers</p>
+            <div id="settingsAgentProviders" class="agent-settings-providers"></div>
+            <p class="form-hint" id="settingsAgentCatalogStatus">Loading provider catalog…</p>
+          </div>
+
+          <div class="agent-settings-card">
+            <p class="agent-settings-card-title">Model Routing</p>
+            <label class="form-field">
+              <span>Default model</span>
+              <select id="settingsAgentDefaultModel"></select>
+            </label>
+            <label class="form-field">
+              <span id="settingsAgentProjectDefaultLabel">Current project default</span>
+              <select id="settingsAgentProjectDefaultModel"></select>
+            </label>
+            <p class="form-hint">Project defaults override the global default for runs created in the active workspace scope.</p>
+          </div>
+
+          <div class="agent-settings-card">
+            <p class="agent-settings-card-title">Agent Profiles</p>
+            <div id="settingsAgentProfiles" class="agent-settings-profiles"></div>
+            <p class="form-hint">Profiles scope approvals and defaults by agent role, provider, and workspace.</p>
+          </div>
+
+          <div class="agent-settings-card">
+            <p class="agent-settings-card-title">Desktop Runtime</p>
+            <p class="form-hint" id="settingsDesktopRuntimeStatus">Checking desktop runtime…</p>
+            <label class="form-field">
+              <span>Runtime profile</span>
+              <select id="settingsDesktopRuntimeProfile"></select>
+            </label>
+            <label class="form-field">
+              <span>Legacy import policy</span>
+              <select id="settingsDesktopMigrationPolicy">
+                <option value="skip">Skip unattended import prompts</option>
+                <option value="prompt">Prompt before first startup</option>
+                <option value="import_last">Auto-import last legacy repo</option>
+              </select>
+            </label>
+            <div class="agent-settings-action-row">
+              <button class="btn" type="button" onclick="restartDesktopRuntime()">Restart runtime</button>
+              <button class="btn" type="button" onclick="showDesktopRuntimeLogs()">Show logs</button>
+              <button class="btn" type="button" onclick="openDesktopRuntimeLogsDir()">Logs folder</button>
+              <button class="btn" type="button" onclick="openDesktopRuntimeDataDir()">Runtime data</button>
+            </div>
+            <pre class="agent-settings-log-preview" id="settingsDesktopRuntimeLogsPreview">No desktop log preview yet.</pre>
+          </div>
+
+          <div class="agent-settings-card">
+            <p class="agent-settings-card-title">Autonomous Supervisor</p>
+
+            <label class="agent-settings-toggle-row" for="settingsAgentSupervisorEnabled">
+              <span class="agent-settings-toggle-copy">
+                <span class="agent-settings-toggle-title">Background PM supervisor</span>
+                <span class="agent-settings-toggle-note">Watch for blockers, overdue work, workload pressure, and missing approvals.</span>
+              </span>
+              <span class="agent-settings-switch">
+                <input type="checkbox" id="settingsAgentSupervisorEnabled" checked>
+                <span class="agent-settings-switch-track" aria-hidden="true"></span>
+              </span>
+            </label>
+
+            <label class="form-field">
+              <span>Sweep interval (minutes)</span>
+              <input type="number" id="settingsAgentSupervisorInterval" min="5" max="240" step="5" value="15">
+            </label>
+
+            <label class="form-field">
+              <span>Supervisor profile</span>
+              <select id="settingsAgentSupervisorProfile"></select>
+            </label>
+
+            <p class="form-hint" id="settingsAgentSupervisorStatus">Autonomous supervisor is idle.</p>
+          </div>
+
+          <div class="agent-settings-card">
+            <p class="agent-settings-card-title">Agents in UP TO SPEED</p>
+
+            <label class="agent-settings-toggle-row" for="settingsAgentEnableStreaming">
+              <span class="agent-settings-toggle-copy">
+                <span class="agent-settings-toggle-title">Streaming responses</span>
+                <span class="agent-settings-toggle-note">Show responses as they generate.</span>
+              </span>
+              <span class="agent-settings-switch">
+                <input type="checkbox" id="settingsAgentEnableStreaming" checked>
+                <span class="agent-settings-switch-track" aria-hidden="true"></span>
+              </span>
+            </label>
+
+            <label class="agent-settings-toggle-row" for="settingsAgentStrictSafety">
+              <span class="agent-settings-toggle-copy">
+                <span class="agent-settings-toggle-title">Strict safety limits</span>
+                <span class="agent-settings-toggle-note">Keep safer defaults for tool usage.</span>
+              </span>
+              <span class="agent-settings-switch">
+                <input type="checkbox" id="settingsAgentStrictSafety" checked>
+                <span class="agent-settings-switch-track" aria-hidden="true"></span>
+              </span>
+            </label>
+
+            <label class="agent-settings-toggle-row" for="settingsAgentAutoMentions">
+              <span class="agent-settings-toggle-copy">
+                <span class="agent-settings-toggle-title">Auto-run @agent mentions</span>
+                <span class="agent-settings-toggle-note">Run mentioned agents directly from task notes.</span>
+              </span>
+              <span class="agent-settings-switch">
+                <input type="checkbox" id="settingsAgentAutoMentions" checked>
+                <span class="agent-settings-switch-track" aria-hidden="true"></span>
+              </span>
+            </label>
+          </div>
+
+          <details class="agent-settings-card agent-settings-trust-card">
+            <summary class="agent-settings-card-summary">
+              <span>Trusted tools</span>
+              <span>Review and revoke</span>
+            </summary>
+            <div id="settingsAgentTrustRules" class="agent-settings-trust"></div>
+          </details>
+        </div>
+        <div id="settingsDevToolsSection" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border-subtle);">
+          <div style="font-weight:600;color:var(--text-secondary);margin-bottom:10px;">Developer</div>
+          <button class="btn" onclick="openProductOnboardingDev(1)" style="width:100%;justify-content:center;">
+            Start onboarding (dev)
+          </button>
+          <p class="form-hint" style="margin-top:8px;">
+            URL trigger: <code>?onboarding=1</code> and optional <code>&amp;onboardingStep=4</code>
+          </p>
+          <button class="btn" onclick="shiftShotGridTaskDatesToYear(2026)" style="width:100%;justify-content:center;margin-top:12px;">
+            Shift + push Flow Production Tracking dates to 2026
+          </button>
+          <p class="form-hint" style="margin-top:8px;">
+            Shifts local Start/End for Flow Production Tracking tasks and pushes the date changes back to Flow Production Tracking.
+          </p>
+          <button class="btn" onclick="showBenchmarkUI(); closeSettingsModal();" style="width:100%;justify-content:center;margin-top:12px;">
+            ⚡ Run Benchmarks
+          </button>
+          <p class="form-hint" style="margin-top:8px;">
+            Performance benchmarks to compare with Flow Production Tracking
+          </p>
+        </div>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-subtle);">
+          <button class="btn btn-danger" onclick="resetAllData()" style="width:100%;justify-content:center;">
+            Reset All Data
+          </button>
+          <p class="form-hint" style="margin-top:8px;">Clears localStorage and reloads demo data</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeSettingsModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveSettings()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Notes Modal -->
+  <div class="modal-backdrop" id="taskNotesModal" role="dialog" aria-labelledby="taskNotesTitle" aria-modal="true">
+    <div class="modal task-notes-modal">
+      <div class="modal-header task-notes-header">
+        <div class="task-notes-header-copy">
+          <h3 id="taskNotesTitle">Task Notes</h3>
+          <p id="taskNotesSubtitle"></p>
+        </div>
+        <button class="panel-close" onclick="closeTaskNotesModal()" aria-label="Close task notes">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body task-notes-body">
+        <div class="task-notes-thread-switcher" id="taskNotesThreadSwitcher" aria-label="Task note threads" style="display:none;"></div>
+        <div class="task-notes-timeline" id="taskNotesTimeline"></div>
+      </div>
+      <div class="modal-footer task-notes-footer">
+        <div class="task-notes-composer" id="taskNotesComposer">
+          <div class="task-notes-composer-meta">
+            <span id="taskNotesComposerMode">New thread</span>
+          </div>
+          <div class="task-notes-composer-editor">
+            <textarea id="taskNotesComposerInput" rows="3" placeholder="Write a note..."></textarea>
+            <div class="task-notes-mention-popover" id="taskNotesMentionPopover" hidden></div>
+          </div>
+          <div class="task-notes-composer-attachments" id="taskNotesComposerAttachments"></div>
+          <input type="file" id="taskNotesImageInput" accept="image/*" multiple hidden>
+          <input type="file" id="taskNotesFileInput" multiple hidden>
+          <div class="task-notes-toolbar">
+            <div class="task-notes-toolbar-left">
+              <button class="task-notes-tool-btn primary" onclick="openTaskNotesFilePicker()" title="Attach file">
+                <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+              <button class="task-notes-tool-btn" onclick="focusTaskNotesComposer()" title="Compose">
+                <span>Aa</span>
+              </button>
+              <button class="task-notes-tool-btn" onclick="focusTaskNotesMention()" title="Mention someone">
+                <svg viewBox="0 0 24 24"><path d="M16 8a5 5 0 1 0 0 8h2a3 3 0 0 0 0-6h-2"/><circle cx="11" cy="12" r="3"/></svg>
+              </button>
+              <button class="task-notes-tool-btn" onclick="openTaskNotesImagePicker()" title="Attach image">
+                <svg viewBox="0 0 24 24"><path d="M4 6h16v12H4zM8 13l2.5-2.5L14 14l2-2 4 4M8.5 10.5h.01"/></svg>
+              </button>
+              <button class="task-notes-tool-btn" onclick="openTaskNotesFilePicker()" title="Attach file">
+                <svg viewBox="0 0 24 24"><path d="M8 7h8a3 3 0 0 1 0 6H9a2 2 0 0 0 0 4h7"/></svg>
+              </button>
+              <button class="task-notes-tool-btn" onclick="addTaskNotesLink()" title="Attach link">
+                <svg viewBox="0 0 24 24"><path d="M10 14l4-4M7 17a4 4 0 0 1 0-6l3-3a4 4 0 0 1 6 6l-1 1M17 7a4 4 0 0 1 0 6l-3 3a4 4 0 0 1-6-6l1-1"/></svg>
+              </button>
+            </div>
+            <div class="task-notes-toolbar-right">
+              <button class="btn" id="taskNotesCancelReplyBtn" onclick="resetTaskNotesComposerMode()" style="display:none;">
+                Cancel reply
+              </button>
+              <button class="task-notes-send-btn" id="taskNotesSendBtn" onclick="submitTaskNotesComposer()">
+                <svg viewBox="0 0 24 24"><path d="M4 12h16M12 5l8 7-8 7"/></svg>
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Onboarding -->
+  <div class="product-onboarding" id="productOnboarding" role="dialog" aria-labelledby="productOnboardingTitle" aria-modal="true" aria-hidden="true">
+    <div class="product-onboarding-shell">
+      <div class="product-onboarding-content">
+        <section class="product-onboarding-step" id="productOnboardingStep1" data-step="1" data-tone="light">
+          <div class="product-onboarding-brand">
+            <div class="product-onboarding-brand-icon" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+            </div>
+            <h1 class="product-onboarding-title product-onboarding-welcome-title" id="productOnboardingTitle">Welcome to UP TO SPEED</h1>
+            <p class="product-onboarding-subtitle">Built for focused creative production and project management. Connect your stack, tune your workspace, and start shipping faster.</p>
+          </div>
+          <button class="product-onboarding-cta" type="button" onclick="nextProductOnboardingStep()">Get started</button>
+        </section>
+
+        <section class="product-onboarding-step" id="productOnboardingStep2" data-step="2" data-tone="light" style="display:none;">
+          <div class="product-onboarding-headline">
+            <h2 class="product-onboarding-title">Choose your style</h2>
+            <p class="product-onboarding-subtitle">Pick from all currently available themes. You can change this any time in settings.</p>
+          </div>
+          <div class="product-onboarding-theme-grid" role="radiogroup" aria-label="Choose a theme">
+            <button type="button" class="product-onboarding-theme-card" id="onboardingThemeDefault" onclick="setProductOnboardingTheme('default')" role="radio" aria-checked="false">
+              <div class="product-onboarding-theme-preview default">
+                <div class="preview-row"></div>
+                <div class="preview-row"></div>
+                <div class="preview-row"></div>
+              </div>
+              <div class="product-onboarding-theme-label">Default</div>
+              <div class="product-onboarding-theme-meta">Warm Dark</div>
+            </button>
+            <button type="button" class="product-onboarding-theme-card" id="onboardingThemeClassic" onclick="setProductOnboardingTheme('classic')" role="radio" aria-checked="false">
+              <div class="product-onboarding-theme-preview classic">
+                <div class="preview-row"></div>
+                <div class="preview-row"></div>
+                <div class="preview-row"></div>
+              </div>
+              <div class="product-onboarding-theme-label">Classic</div>
+              <div class="product-onboarding-theme-meta">Black &amp; White</div>
+            </button>
+            <button type="button" class="product-onboarding-theme-card" id="onboardingThemeLight" onclick="setProductOnboardingTheme('light')" role="radio" aria-checked="false">
+              <div class="product-onboarding-theme-preview light">
+                <div class="preview-row"></div>
+                <div class="preview-row"></div>
+                <div class="preview-row"></div>
+              </div>
+              <div class="product-onboarding-theme-label">Light</div>
+              <div class="product-onboarding-theme-meta">Spreadsheet</div>
+            </button>
+          </div>
+          <button class="product-onboarding-cta" type="button" id="productOnboardingThemeContinue" onclick="nextProductOnboardingStep()">Continue</button>
+        </section>
+
+        <section class="product-onboarding-step" id="productOnboardingStep3" data-step="3" data-tone="dark" style="display:none;">
+          <div class="product-onboarding-headline">
+            <div class="product-onboarding-flow-logo" aria-hidden="true">
+              <img src="assets/branding/flow-production-tracking-lockup-white.svg" alt="">
+            </div>
+            <h2 class="product-onboarding-title">Connect Flow Production Tracking</h2>
+            <p class="product-onboarding-subtitle">Link Flow Production Tracking to pull tasks, keep updates aligned, and sync your board with production data.</p>
+          </div>
+          <div class="product-onboarding-panel">
+            <div class="product-onboarding-check-row">
+              <span>✓</span>
+              <p>Import tasks directly from Flow Production Tracking projects.</p>
+            </div>
+            <div class="product-onboarding-check-row">
+              <span>✓</span>
+              <p>Track status, review, and schedule changes in one place.</p>
+            </div>
+            <div class="product-onboarding-check-row">
+              <span>✓</span>
+              <p>Configure sync and push defaults any time in settings.</p>
+            </div>
+            <p class="product-onboarding-inline-note" id="productOnboardingShotGridStatus"></p>
+          </div>
+          <button class="product-onboarding-cta" id="productOnboardingShotGridBtn" type="button" onclick="productOnboardingConnectShotGrid()">Connect Flow Production Tracking</button>
+          <button class="product-onboarding-link" type="button" onclick="nextProductOnboardingStep()">I'll do this later</button>
+        </section>
+
+        <section class="product-onboarding-step" id="productOnboardingStep4" data-step="4" data-tone="dark" style="display:none;">
+          <div class="product-onboarding-headline">
+            <h2 class="product-onboarding-title">Meet the command menu</h2>
+            <p class="product-onboarding-subtitle">Complete actions in seconds by typing directly in the command menu.</p>
+          </div>
+          <div class="product-onboarding-panel centered">
+            <p class="product-onboarding-key-hint">Try opening the command menu with:</p>
+            <div class="product-onboarding-keys" aria-label="Keyboard shortcut">
+              <kbd>⌘</kbd>
+              <kbd>K</kbd>
+            </div>
+          </div>
+          <button class="product-onboarding-cta minimal" type="button" onclick="nextProductOnboardingStep()">Continue</button>
+        </section>
+
+        <section class="product-onboarding-step" id="productOnboardingStep5" data-step="5" data-tone="dark" style="display:none;">
+          <div class="product-onboarding-headline">
+            <h2 class="product-onboarding-title">Invite collaborators</h2>
+            <p class="product-onboarding-subtitle">Bring your team in now or keep going and invite them later.</p>
+          </div>
+          <div class="product-onboarding-panel">
+            <label class="product-onboarding-field-label" for="productOnboardingEmailInput">Email</label>
+            <div class="product-onboarding-input-row">
+              <input type="text" id="productOnboardingEmailInput" placeholder="name@studio.com, lead@studio.com">
+              <button type="button" class="product-onboarding-mini-btn" onclick="sendProductOnboardingInvites()">Send invites</button>
+            </div>
+            <p class="product-onboarding-inline-note" id="productOnboardingInviteStatus"></p>
+          </div>
+          <button class="product-onboarding-cta minimal" type="button" onclick="nextProductOnboardingStep()">Continue</button>
+          <button class="product-onboarding-link" type="button" onclick="nextProductOnboardingStep()">I'll do this later</button>
+        </section>
+
+        <section class="product-onboarding-step" id="productOnboardingStep6" data-step="6" data-tone="dark" style="display:none;">
+          <div class="product-onboarding-headline">
+            <div class="product-onboarding-icon-circle" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM8 9h8M8 13h8M8 17h5" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+            </div>
+            <h2 class="product-onboarding-title">Set your profile</h2>
+            <p class="product-onboarding-subtitle">Add your name for the sidebar profile title and choose a note prefix for quick ownership context.</p>
+          </div>
+          <div class="product-onboarding-panel">
+            <label class="product-onboarding-field-label" for="productOnboardingNameInput">Your Name</label>
+            <input type="text" id="productOnboardingNameInput" placeholder="e.g. Jane Doe">
+            <p class="product-onboarding-inline-note" id="productOnboardingNameStatus"></p>
+            <label class="product-onboarding-field-label" for="productOnboardingPrefixInput">Dept Prod Note Prefix</label>
+            <input type="text" id="productOnboardingPrefixInput" placeholder="e.g. WKLY">
+            <p class="product-onboarding-inline-note" id="productOnboardingPrefixPreview"></p>
+          </div>
+          <button class="product-onboarding-cta" type="button" onclick="saveProductOnboardingPrefixAndContinue()">Save and continue</button>
+        </section>
+
+        <section class="product-onboarding-step" id="productOnboardingStep7" data-step="7" data-tone="dark" style="display:none;">
+          <div class="product-onboarding-headline">
+            <h2 class="product-onboarding-title">You're good to go</h2>
+            <p class="product-onboarding-subtitle">Your workspace is ready. You can revisit any setup option in settings.</p>
+          </div>
+          <div class="product-onboarding-summary-grid">
+            <article>
+              <h3>Flow Auto Sync</h3>
+              <p>Connect Flow Production Tracking and keep your creative project tasks aligned automatically.</p>
+            </article>
+            <article>
+              <h3>Project Notes</h3>
+              <p>Prefix-based notes keep ownership and updates clean and searchable.</p>
+            </article>
+            <article>
+              <h3>Shortcuts</h3>
+              <p>Open search with <kbd>⌘</kbd> <kbd>K</kbd> and move fast.</p>
+            </article>
+          </div>
+          <button class="product-onboarding-cta" type="button" onclick="finishProductOnboarding()">Open UP TO SPEED</button>
+        </section>
+      </div>
+
+      <div class="product-onboarding-dots" id="productOnboardingDots" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flow Production Tracking Connect Modal -->
+  <div class="modal-backdrop" id="onboardingModal" role="dialog" aria-labelledby="onboardingTitle" aria-modal="true">
+    <div class="modal" style="width:560px;">
+      <div class="modal-header">
+        <h3 id="onboardingTitle">Connect to Flow Production Tracking</h3>
+        <button class="panel-close" onclick="closeOnboardingModal()" aria-label="Close">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="onboarding-step" id="onboardingStep2" style="display:none;">
+          <div id="onboardingServerHint" class="onboarding-callout" style="display:none;">
+            <div class="onboarding-callout-title">Start the supported runtime</div>
+            <div class="onboarding-callout-body">
+              Flow Production Tracking sync runs through a local proxy server.<br>
+              Run <code>python3 scripts/launch_agent_stack.py</code> and keep it running while you use UP TO SPEED.
+            </div>
+          </div>
+
+          <div id="onboardingCookieHint" class="onboarding-callout" style="display:none;">
+            <div class="onboarding-callout-title">Personal sign-in needs cookies</div>
+            <div class="onboarding-callout-body">
+              To sign in with your Flow Production Tracking account, open this app from <code>http://127.0.0.1:7331/</code> (not <code>file://</code>).
+            </div>
+	          </div>
+	
+	          <p style="color:var(--text-secondary);margin-top:0;">
+	            Connect your Flow Production Tracking site, then choose a project to sync.
+	          </p>
+
+          <div class="form-group">
+            <label for="onboardingSiteUrl">Flow Production Tracking Site URL</label>
+            <input type="text" id="onboardingSiteUrl" placeholder="https://your-studio.shotgrid.autodesk.com">
+          </div>
+
+          <div class="form-group" style="margin-top:12px;">
+            <label>Authentication</label>
+            <input type="hidden" id="onboardingAuthMode" value="script">
+            <div class="onboarding-auth-grid">
+              <button type="button" class="onboarding-auth-card" id="onboardingAuthCardScript" onclick="setOnboardingAuthMode('script')">
+                <div class="onboarding-auth-card-title">Studio <span class="onboarding-pill">Recommended</span></div>
+                <div class="onboarding-auth-card-body">No personal login. Best for teams using a shared script user.</div>
+              </button>
+              <button type="button" class="onboarding-auth-card" id="onboardingAuthCardUser" onclick="setOnboardingAuthMode('user')">
+                <div class="onboarding-auth-card-title">My account</div>
+                <div class="onboarding-auth-card-body">Sign in with a Flow Production Tracking API passphrase/token (no Autodesk password).</div>
+              </button>
+              <button type="button" class="onboarding-auth-card" id="onboardingAuthCardSession" onclick="setOnboardingAuthMode('session_token')" style="display:none;">
+                <div class="onboarding-auth-card-title">Session token</div>
+                <div class="onboarding-auth-card-body">Advanced option for restricted environments.</div>
+              </button>
+            </div>
+            <div class="onboarding-advanced-row">
+              <button type="button" class="onboarding-link" id="onboardingAdvancedToggle" onclick="toggleOnboardingAdvanced()">Advanced options</button>
+            </div>
+            <p class="form-hint" id="onboardingAuthModeHint" style="margin-top:8px;"></p>
+          </div>
+
+	          <div id="onboardingUserFields" style="display:none;margin-top:12px;">
+	            <div class="form-group">
+	              <label for="onboardingUsername">Flow Production Tracking Username</label>
+	              <input type="text" id="onboardingUsername" placeholder="e.g. jane.doe">
+	            </div>
+	            <div class="form-group" style="margin-top:12px;">
+	              <label for="onboardingPassphrase">Passphrase / Personal Access Token</label>
+	              <input type="password" id="onboardingPassphrase" placeholder="••••••••">
+	              <p class="form-hint" style="margin-top:6px;">Use a Flow Production Tracking API passphrase/token (not your Autodesk SSO password).</p>
+	            </div>
+            <div class="form-group" style="margin-top:12px;">
+              <label for="onboardingAuthToken">2FA code (optional)</label>
+              <input type="text" id="onboardingAuthToken" placeholder="123456">
+            </div>
+          </div>
+
+          <div id="onboardingSessionTokenFields" style="display:none;margin-top:12px;">
+            <div class="form-group">
+              <label for="onboardingSessionToken">Session Token</label>
+              <input type="password" id="onboardingSessionToken" placeholder="Paste session token">
+            </div>
+          </div>
+
+          <label class="checkbox-label" id="onboardingRememberRow" style="margin-top:12px;">
+            <input type="checkbox" id="onboardingRememberAccount" checked>
+            Remember this account on this machine
+          </label>
+          <p class="form-hint" id="onboardingRememberHint" style="margin-left:24px;margin-top:6px;">
+            Stores Flow Production Tracking tokens in the encrypted local broker database.
+          </p>
+
+          <button class="btn btn-primary" id="onboardingLoginBtn" onclick="onboardingLoginWithShotGrid()" style="width:100%;justify-content:center;margin-top:12px;">
+            Connect
+          </button>
+          <div class="onboarding-error" id="onboardingAuthError" style="display:none;"></div>
+        </div>
+
+        <div class="onboarding-step" id="onboardingStep3" style="display:none;">
+          <div class="form-group">
+            <label for="onboardingProjectSearch">Choose a Project</label>
+            <input type="text" id="onboardingProjectSearch" placeholder="Search projects...">
+          </div>
+          <div class="onboarding-project-list" id="onboardingProjectList"></div>
+          <div class="form-group" style="margin-top:12px;">
+            <label for="onboardingProjectIdManual">Or enter Project ID</label>
+            <input type="number" id="onboardingProjectIdManual" placeholder="e.g. 70">
+            <p class="form-hint">If your project list is restricted, you can still connect by ID.</p>
+          </div>
+          <div class="onboarding-error" id="onboardingProjectError" style="display:none;"></div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content:space-between;">
+        <div style="display:flex;gap:8px;">
+          <button class="btn" id="onboardingBackBtn" onclick="onboardingBack()" style="visibility:hidden;">Back</button>
+          <button class="btn" onclick="closeOnboardingModal()">Cancel</button>
+        </div>
+        <button class="btn btn-primary" id="onboardingNextBtn" onclick="onboardingNext()">Connect</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Asset Detail Overlay -->
+  <div class="asset-detail-overlay" id="assetDetailOverlay">
+    <div class="asset-detail-header">
+      <button class="asset-detail-back" onclick="closeAssetDetail()" aria-label="Back to list">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <span>Back</span>
+      </button>
+      <div class="asset-detail-title" id="assetDetailTitle">Asset Name</div>
+      <div class="asset-detail-actions">
+        <button class="btn btn-icon" onclick="assetDetailPrev()" title="Previous asset">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span class="asset-detail-nav-label" id="assetDetailNavLabel">1 / 10</span>
+        <button class="btn btn-icon" onclick="assetDetailNext()" title="Next asset">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="asset-detail-content" id="assetDetailContent">
+      <!-- Content rendered by JS -->
+    </div>
+  </div>
+
+  <aside class="agent-chat-dock" id="agentChatDock" aria-label="Agent Chat">
+    <div class="agent-chat-header">
+      <div class="agent-chat-header-left">
+        <span class="agent-chat-bot-badge" aria-hidden="true">
+          <img id="agentChatProviderLogo" class="agent-chat-provider-logo" src="assets/branding/openai-codex-logo.png" alt="Codex logo">
+        </span>
+        <h3 id="agentChatTitle">Codex Agent</h3>
+      </div>
+      <div class="agent-chat-header-right">
+        <button class="agent-chat-new-btn" id="agentChatNewSessionBtn" type="button" onclick="createNewAgentChatSession()" aria-label="Create a new chat session" title="New chat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span>New chat</span>
+        </button>
+        <div class="agent-chat-history-wrap" id="agentChatHistoryWrap">
+          <button class="agent-chat-history-btn" id="agentChatHistoryBtn" type="button" onclick="toggleAgentChatHistoryPopover(event)" aria-label="Open chat history" title="History">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.05" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7.5v5l3 1.75"/></svg>
+            <span>History</span>
+          </button>
+          <div class="agent-chat-history-popover" id="agentChatHistoryPopover" hidden></div>
+        </div>
+        <button class="agent-chat-icon-btn" onclick="closeAgentChatDock()" aria-label="Close agent chat" title="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="agent-chat-shell">
+      <div class="agent-chat-main">
+        <div class="agent-chat-messages" id="agentChatMessages"></div>
+        <div class="agent-chat-composer">
+          <textarea id="agentChatInput" rows="1" enterkeyhint="send" placeholder="Message the agent..." oninput="onAgentChatInput(this.value)" onkeydown="handleAgentChatInputKeydown(event)"></textarea>
+          <div class="agent-chat-composer-meta">
+            <button class="agent-chat-plus-btn" type="button" onclick="openAgentPermissionsView()" aria-label="Agent permissions" title="Agent permissions">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+            <label class="sr-only" for="agentChatModelPicker">Model</label>
+            <select id="agentChatModelPicker" class="agent-chat-model-picker" onchange="onAgentChatModelPickerChange(this.value)">
+              <option value="codex/default">Codex Default</option>
+            </select>
+            <label class="sr-only" for="agentChatEffortPicker">Reasoning effort</label>
+            <select id="agentChatEffortPicker" class="agent-chat-model-picker agent-chat-effort-picker" onchange="onAgentChatEffortPickerChange()">
+              <option value="standard">Standard</option>
+              <option value="high">High</option>
+              <option value="extra_high" selected>Extra High</option>
+            </select>
+          </div>
+          <div class="agent-chat-composer-actions">
+            <button class="agent-chat-send-btn" onclick="sendAgentChatMessage()" aria-label="Send message" title="Send (Enter; Shift+Enter for new line)">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15V4.5"/><path d="m5.75 8.75 4.25-4.25 4.25 4.25"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/zod@3.24.2/lib/index.umd.min.js"></script>
+  <script src="app.js"></script>
+  <script src="benchmarks/benchmark-runner.js"></script>
+</body>
+</html>

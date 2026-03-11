@@ -1,0 +1,40 @@
+name: Publish Desktop Installer
+
+on:
+  push:
+    tags:
+      - "installer-v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+          cache: npm
+          cache-dependency-path: installer/package.json
+
+      - name: Install package metadata dependencies
+        working-directory: installer
+        run: npm install --package-lock-only
+
+      - name: Run installer tests
+        working-directory: installer
+        run: npm test
+
+      - name: Publish installer package
+        working-directory: installer
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

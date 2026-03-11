@@ -1,0 +1,55 @@
+.DS_Store
+__pycache__/
+.pycache/
+*.pyc
+
+# Local env files (do not commit credentials)
+.env
+.env.*
+!.env.example
+.secrets/
+
+# ShotGrid local cache
+.shotgrid_cache.json
+.shotgrid_cache.json.tmp
+
+# Internal docs (not public yet)
+docs/
+
+# Tool artifacts
+.codex/*
+!.codex/skills/
+.codex/skills/*
+!.codex/skills/uptospeed-mcp-helper/
+!.codex/skills/uptospeed-mcp-helper/**
+!.codex/skills/uptospeed-brand-identity/
+!.codex/skills/uptospeed-brand-identity/**
+codex-reports/
+
+# Benchmark result data (keep runner + HTML viewer)
+benchmarks/results-data*.json
+
+# ShotGrid test/benchmark artifacts
+shotgridtest.json
+
+# Node dependencies (install via npm install)
+node_modules/
+
+# Local sync broker runtime database
+.local_sync_broker.sqlite3
+.local_sync_broker.sqlite3-shm
+.local_sync_broker.sqlite3-wal
+.local_sync_broker.sqlite3.plaintext-backup-*
+.local_sync_broker.sqlite3.encrypted-tmp-*
+
+# Desktop build outputs
+desktop/dist/
+desktop/releases/
+desktop/resources/backend/
+!desktop/resources/.gitkeep
+
+# Publish-safe hygiene
+installer/*.tgz
+output/
+public-launch/
+security_best_practices_report.md

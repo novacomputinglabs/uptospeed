@@ -1,0 +1,65 @@
+:root {
+  --brand-font-body: "Instrument Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --brand-font-display: "Syne", "Instrument Sans", sans-serif;
+  --brand-font-mono: "JetBrains Mono", "SFMono-Regular", "SF Mono", Monaco, Consolas, monospace;
+
+  --brand-accent: #ff998f;
+  --brand-accent-hover: #ffb3ab;
+  --brand-accent-muted: rgba(255, 153, 143, 0.14);
+  --brand-accent-muted-strong: rgba(255, 153, 143, 0.22);
+  --brand-accent-dim: rgba(255, 153, 143, 0.12);
+  --brand-accent-glow: rgba(255, 153, 143, 0.25);
+
+  --brand-text: #fafaef;
+  --brand-text-secondary: #d7d6ca;
+  --brand-text-muted: #8a8880;
+  --brand-green: #34d399;
+  --brand-amber: #fbbf24;
+  --brand-red: #fb7185;
+  --brand-blue: #818cf8;
+  --brand-blue-muted: rgba(129, 140, 248, 0.16);
+  --brand-blue-subtle: rgba(129, 140, 248, 0.09);
+
+  --brand-landing-bg-deep: #18171e;
+  --brand-landing-bg: #1e1d25;
+  --brand-landing-bg-subtle: #26252e;
+  --brand-landing-surface: #2e2d38;
+  --brand-landing-surface-raised: #383744;
+  --brand-landing-border: #3d3c4a;
+  --brand-landing-border-subtle: #2e2d3a;
+
+  --brand-app-bg: #25242a;
+  --brand-app-bg-subtle: #2b2a31;
+  --brand-app-surface: #2f2e36;
+  --brand-app-surface-raised: #383742;
+  --brand-app-border: #4a4855;
+  --brand-app-border-subtle: #3d3c47;
+
+  --brand-theme-classic-bg: #09090b;
+  --brand-theme-classic-bg-subtle: #0c0c0e;
+  --brand-theme-classic-surface: #111113;
+  --brand-theme-classic-surface-raised: #18181b;
+  --brand-theme-classic-border: #27272a;
+  --brand-theme-classic-border-subtle: #1f1f23;
+  --brand-theme-classic-text: #fafafa;
+  --brand-theme-classic-text-secondary: #a1a1aa;
+  --brand-theme-classic-text-muted: #71717a;
+  --brand-theme-classic-accent: #ffffff;
+  --brand-theme-classic-accent-hover: #e4e4e7;
+  --brand-theme-classic-accent-muted: rgba(255, 255, 255, 0.08);
+  --brand-theme-classic-accent-muted-strong: rgba(255, 255, 255, 0.12);
+
+  --brand-theme-light-bg: #f8f9fa;
+  --brand-theme-light-bg-subtle: #f1f3f4;
+  --brand-theme-light-surface: #ffffff;
+  --brand-theme-light-surface-raised: #ffffff;
+  --brand-theme-light-border: #dadce0;
+  --brand-theme-light-border-subtle: #e8eaed;
+  --brand-theme-light-text: #202124;
+  --brand-theme-light-text-secondary: #5f6368;
+  --brand-theme-light-text-muted: #80868b;
+  --brand-theme-light-accent: #ffa89e;
+  --brand-theme-light-accent-hover: #ff968c;
+  --brand-theme-light-accent-muted: rgba(255, 168, 158, 0.18);
+  --brand-theme-light-accent-muted-strong: rgba(255, 168, 158, 0.28);
+}

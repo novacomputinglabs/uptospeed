@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getting Started — UP TO SPEED</title>
+  <meta name="description" content="Get up and running with Up to Speed in minutes. Open the app, import your tasks, and start producing creative projects.">
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const storageKey = 'uts-landing-theme';
+      root.classList.add('js');
+
+      const normalizeTheme = (value) => (
+        value === 'light' || value === 'dark' ? value : null
+      );
+
+      let storedTheme = null;
+      try {
+        storedTheme = normalizeTheme(window.localStorage.getItem(storageKey));
+      } catch {
+        storedTheme = null;
+      }
+
+      const systemTheme = (
+        window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+      ) ? 'dark' : 'light';
+
+      const initialTheme = storedTheme || systemTheme;
+      root.setAttribute('data-theme', initialTheme);
+      root.style.colorScheme = initialTheme;
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../brand-tokens.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Navigation -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo" aria-label="Up to Speed home">UP TO SPEED</a>
+      <div class="nav-links">
+        <a href="index.html#showcase">Why</a>
+        <a href="index.html#speed">Speed</a>
+        <a href="index.html#roadmap">Roadmap</a>
+        <a href="getting-started.html" class="active" aria-current="page">Getting Started</a>
+        <a href="server-config.html">Server Config</a>
+      </div>
+      <div class="theme-toggle" role="group" aria-label="Color theme">
+        <button type="button" class="theme-toggle-btn" data-theme-toggle="dark" aria-pressed="false">Dark</button>
+        <button type="button" class="theme-toggle-btn" data-theme-toggle="light" aria-pressed="false">Light</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="docs-hero" aria-labelledby="docs-hero-heading">
+    <div class="hero-bg" aria-hidden="true">
+      <div class="hero-grid"></div>
+      <div class="hero-glow"></div>
+    </div>
+    <div class="docs-hero-content">
+      <span class="section-tag">Docs</span>
+      <h1 id="docs-hero-heading">Getting Started</h1>
+      <p class="docs-hero-sub">Install the desktop app or open the browser build, import your tasks, and start producing in minutes.</p>
+    </div>
+  </section>
+
+  <!-- Content -->
+  <main class="docs-content">
+    <div class="docs-inner">
+
+      <!-- Quick start -->
+      <section class="docs-section" id="quick-start">
+        <div class="docs-section-head">
+          <h2>Quick start</h2>
+          <div class="docs-copy-inline">
+            <button type="button" class="docs-copy-button" id="copy-page-markdown-btn">Copy Page as Markdown</button>
+            <span class="docs-copy-status" id="copy-page-markdown-status" role="status" aria-live="polite"></span>
+          </div>
+        </div>
+        <p>Up to Speed now ships as a desktop app and still supports a browser-only workflow. Install the desktop build for the full local runtime, or open the browser build for quick read-only access.</p>
+
+        <h3>Install the desktop app</h3>
+        <div class="docs-code"><pre><code>bunx --bun uptospeed-desktop-installer</code></pre></div>
+        <p>The installer downloads the latest desktop release for your OS, installs it into a user-writable location, and opens the app. If you prefer a browser-only workflow, keep using <code>index.html</code> directly.</p>
+
+        <div class="docs-cards-grid" style="margin-bottom: 32px;">
+          <div class="docs-info-card">
+            <h3>Option A: Desktop app</h3>
+            <p>Recommended. Installs the full localhost runtime, including local broker sync, live updates, and MCP-backed agent tools.</p>
+          </div>
+          <div class="docs-info-card">
+            <h3>Option B: Browser mode</h3>
+            <p>Open the static app directly for demos or inspection. For Flow Production Tracking live sync and agents, use the desktop runtime or the local server stack. See <a href="server-config.html">Server Config</a> for setup.</p>
+          </div>
+        </div>
+
+        <h3>Getting up and running</h3>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-number" aria-hidden="true">1</div>
+            <h3>Install or open</h3>
+            <p>Run the Bun install command for the desktop app, or open <code>index.html</code> in a modern browser for the static fallback.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number" aria-hidden="true">2</div>
+            <h3>Import your tasks</h3>
+            <p>Drag a CSV onto the board, or connect to Flow Production Tracking via Settings. The app accepts Flow Production Tracking-compatible CSVs out of the box.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number" aria-hidden="true">3</div>
+            <h3>Start producing</h3>
+            <p>Drag tasks between columns, switch views, and use the workload panel to balance your team's capacity and delivery plan.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CSV format -->
+      <section class="docs-section" id="csv-format">
+        <h2>CSV format</h2>
+        <p>Import CSVs with these columns. All columns are optional except <code>Task Name</code>.</p>
+        <div class="docs-table-wrap">
+          <table class="docs-table">
+            <thead>
+              <tr><th>Column</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>Id</code></td><td>Unique task identifier</td></tr>
+              <tr><td><code>Task Name</code></td><td>Task title</td></tr>
+              <tr><td><code>Link</code></td><td>Asset name</td></tr>
+              <tr><td><code>Status</code></td><td>Current status code (e.g. <code>ip</code>, <code>review</code>, <code>apr</code>)</td></tr>
+              <tr><td><code>Assigned To</code></td><td>Artist name</td></tr>
+              <tr><td><code>Start</code></td><td>Start date (<code>YYYY-MM-DD</code>)</td></tr>
+              <tr><td><code>End</code></td><td>End date (<code>YYYY-MM-DD</code>)</td></tr>
+              <tr><td><code>Pipeline Step</code></td><td>Department (Rig, CFX, Model, Look Dev, etc.)</td></tr>
+              <tr><td><code>% Allocation</code></td><td>Artist allocation percentage</td></tr>
+              <tr><td><code>Project</code></td><td>Project name</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Keyboard shortcuts -->
+      <section class="docs-section" id="shortcuts">
+        <h2>Keyboard shortcuts</h2>
+        <p>Navigate the app without touching your mouse.</p>
+        <div class="docs-table-wrap">
+          <table class="docs-table">
+            <thead>
+              <tr><th>Key</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><kbd>⌘K</kbd></td><td>Spotlight search</td></tr>
+              <tr><td><kbd>N</kbd></td><td>New task</td></tr>
+              <tr><td><kbd>S</kbd></td><td>Toggle sprint panel</td></tr>
+              <tr><td><kbd>W</kbd></td><td>Toggle workload panel</td></tr>
+              <tr><td><kbd>G</kbd></td><td>Open Gantt chart</td></tr>
+              <tr><td><kbd>R</kbd></td><td>Rounds (stand-up) mode</td></tr>
+              <tr><td><kbd>E</kbd></td><td>Edit selected task</td></tr>
+              <tr><td><kbd>Space</kbd></td><td>Toggle sprint on selected task</td></tr>
+              <tr><td><kbd>⌫</kbd></td><td>Delete selected task</td></tr>
+              <tr><td><kbd>⌘Z</kbd></td><td>Undo</td></tr>
+              <tr><td><kbd>⌘⇧Z</kbd></td><td>Redo</td></tr>
+              <tr><td><kbd>Esc</kbd></td><td>Close modal / panel</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Views -->
+      <section class="docs-section" id="views">
+        <h2>Views</h2>
+        <p>Switch between views depending on what you're doing.</p>
+        <div class="docs-cards-grid">
+          <div class="docs-info-card">
+            <h3>Board</h3>
+            <p>Kanban-style columns. Drag tasks between Backlog, Scheduled, In Progress, Review, and Done.</p>
+          </div>
+          <div class="docs-info-card">
+            <h3>Timeline</h3>
+            <p>Gantt chart with drag-to-reschedule, resize-to-adjust, weekend highlighting, and a today marker.</p>
+          </div>
+          <div class="docs-info-card">
+            <h3>Spreadsheet</h3>
+            <p>Click any cell to edit. Sort by any column. Handles thousands of tasks without slowing down.</p>
+          </div>
+          <div class="docs-info-card">
+            <h3>Rounds</h3>
+            <p>Walk through each artist's tasks one by one. Built for dailies and stand-ups. Navigate with arrow keys.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Flow Production Tracking sync -->
+      <section class="docs-section" id="fpt-sync">
+        <h2>Flow Production Tracking live sync</h2>
+        <p>Optionally connect to a real Flow Production Tracking site to pull and push tasks. This requires running a small local server.</p>
+        <p>See the <a href="server-config.html">Server Config</a> page for full setup instructions.</p>
+      </section>
+
+      <!-- Browser support -->
+      <section class="docs-section" id="browser-support">
+        <h2>Browser support</h2>
+        <p>Works in all modern browsers — Chrome, Firefox, Safari, and Edge. Data persists in <code>localStorage</code>, so your tasks survive page reloads.</p>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="footer-logo">UP TO SPEED</span>
+        <p>A workspace for producing and managing creative projects.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="index.html#showcase">Why Up to Speed</a>
+          <a href="index.html#views">Views</a>
+          <a href="index.html#roadmap">Roadmap</a>
+        </div>
+        <div class="footer-col">
+          <h4>Community</h4>
+          <a href="index.html#waitlist">Join Waitlist</a>
+          <a href="index.html#feature-request">Request a Feature</a>
+        </div>
+        <div class="footer-col">
+          <h4>Setup</h4>
+          <a href="getting-started.html">Getting Started</a>
+          <a href="server-config.html">Server Config</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>Made for creative teams who are tired of waiting.</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    (() => {
+      const copyButton = document.getElementById('copy-page-markdown-btn');
+      const statusElement = document.getElementById('copy-page-markdown-status');
+
+      if (!copyButton || !statusElement) return;
+
+      let statusResetTimer = null;
+
+      function normalizeWhitespace(value) {
+        return (value || '').replace(/\s+/g, ' ').trim();
+      }
+
+      function escapeTableCell(value) {
+        return value.replace(/\|/g, '\\|');
+      }
+
+      function inlineContentToMarkdown(element) {
+        return Array.from(element.childNodes)
+          .map(inlineNodeToMarkdown)
+          .join('')
+          .replace(/\s+/g, ' ')
+          .replace(/\s+([.,;:!?])/g, '$1')
+          .trim();
+      }
+
+      function inlineNodeToMarkdown(node) {
+        if (node.nodeType === Node.TEXT_NODE) return node.textContent || '';
+        if (node.nodeType !== Node.ELEMENT_NODE) return '';
+
+        const element = node;
+        const tagName = element.tagName.toLowerCase();
+
+        if (tagName === 'code' || tagName === 'kbd') {
+          return `\`${normalizeWhitespace(element.textContent)}\``;
+        }
+
+        if (tagName === 'a') {
+          const label = inlineContentToMarkdown(element);
+          const href = element.getAttribute('href') || '';
+          return href ? `[${label}](${href})` : label;
+        }
+
+        if (tagName === 'strong' || tagName === 'b') {
+          return `**${inlineContentToMarkdown(element)}**`;
+        }
+
+        if (tagName === 'em' || tagName === 'i') {
+          return `*${inlineContentToMarkdown(element)}*`;
+        }
+
+        if (tagName === 'br') return '\n';
+
+        return Array.from(element.childNodes).map(inlineNodeToMarkdown).join('');
+      }
+
+      function tableToMarkdown(table) {
+        const headerCells = Array.from(table.querySelectorAll('thead th'));
+        const fallbackHeaders = Array.from(table.querySelectorAll('tr:first-child th, tr:first-child td'));
+        const headers = (headerCells.length ? headerCells : fallbackHeaders).map((cell) => escapeTableCell(inlineContentToMarkdown(cell)));
+
+        if (!headers.length) return '';
+
+        const bodyRows = Array.from(table.querySelectorAll('tbody tr'));
+        const fallbackRows = Array.from(table.querySelectorAll('tr')).slice(1);
+        const rows = bodyRows.length ? bodyRows : fallbackRows;
+
+        const lines = [
+          `| ${headers.join(' | ')} |`,
+          `| ${headers.map(() => '---').join(' | ')} |`
+        ];
+
+        rows.forEach((row) => {
+          const cells = Array.from(row.querySelectorAll('th, td'));
+          if (!cells.length) return;
+
+          const values = cells.map((cell) => escapeTableCell(inlineContentToMarkdown(cell)));
+          while (values.length < headers.length) values.push('');
+          lines.push(`| ${values.slice(0, headers.length).join(' | ')} |`);
+        });
+
+        return lines.join('\n');
+      }
+
+      function cardsGridToMarkdown(grid) {
+        const cards = Array.from(grid.querySelectorAll('.docs-info-card'));
+        if (!cards.length) return '';
+
+        return cards.map((card) => {
+          const title = normalizeWhitespace(card.querySelector('h3')?.textContent || 'Item');
+          const description = inlineContentToMarkdown(card.querySelector('p') || card);
+          return `- **${title}**${description ? `: ${description}` : ''}`;
+        }).join('\n');
+      }
+
+      function stepsGridToMarkdown(grid) {
+        const steps = Array.from(grid.querySelectorAll('.step-card'));
+        if (!steps.length) return '';
+
+        return steps.map((step, index) => {
+          const explicitNumber = Number.parseInt(normalizeWhitespace(step.querySelector('.step-number')?.textContent || ''), 10);
+          const number = Number.isFinite(explicitNumber) ? explicitNumber : index + 1;
+          const title = normalizeWhitespace(step.querySelector('h3')?.textContent || `Step ${number}`);
+          const description = inlineContentToMarkdown(step.querySelector('p') || step);
+          return `${number}. **${title}**${description ? `: ${description}` : ''}`;
+        }).join('\n');
+      }
+
+      function listToMarkdown(list) {
+        const isOrdered = list.tagName.toLowerCase() === 'ol';
+        const items = Array.from(list.children).filter((child) => child.tagName.toLowerCase() === 'li');
+        if (!items.length) return '';
+
+        return items.map((item, index) => {
+          const marker = isOrdered ? `${index + 1}.` : '-';
+          return `${marker} ${inlineContentToMarkdown(item)}`;
+        }).join('\n');
+      }
+
+      function sectionToMarkdown(section) {
+        const blocks = [];
+
+        Array.from(section.children).forEach((child) => {
+          const tagName = child.tagName.toLowerCase();
+
+          if (tagName === 'h2') {
+            blocks.push(`## ${inlineContentToMarkdown(child)}`);
+            return;
+          }
+
+          if (tagName === 'h3') {
+            blocks.push(`### ${inlineContentToMarkdown(child)}`);
+            return;
+          }
+
+          if (tagName === 'p') {
+            const paragraph = inlineContentToMarkdown(child);
+            if (paragraph) blocks.push(paragraph);
+            return;
+          }
+
+          if (tagName === 'ul' || tagName === 'ol') {
+            const listMarkdown = listToMarkdown(child);
+            if (listMarkdown) blocks.push(listMarkdown);
+            return;
+          }
+
+          if (child.classList.contains('steps-grid')) {
+            const stepsMarkdown = stepsGridToMarkdown(child);
+            if (stepsMarkdown) blocks.push(stepsMarkdown);
+            return;
+          }
+
+          if (child.classList.contains('docs-cards-grid')) {
+            const cardsMarkdown = cardsGridToMarkdown(child);
+            if (cardsMarkdown) blocks.push(cardsMarkdown);
+            return;
+          }
+
+          if (child.classList.contains('docs-table-wrap')) {
+            const table = child.querySelector('table');
+            if (!table) return;
+            const tableMarkdown = tableToMarkdown(table);
+            if (tableMarkdown) blocks.push(tableMarkdown);
+            return;
+          }
+
+          if (child.classList.contains('docs-code')) {
+            const code = child.querySelector('code')?.textContent || '';
+            if (code.trim()) {
+              blocks.push(`\`\`\`\n${code.trim()}\n\`\`\``);
+            }
+          }
+        });
+
+        return blocks.join('\n\n').trim();
+      }
+
+      function buildPageMarkdown() {
+        const parts = [];
+        const title = normalizeWhitespace(document.querySelector('#docs-hero-heading')?.textContent || document.title);
+        const subtitle = normalizeWhitespace(document.querySelector('.docs-hero-sub')?.textContent || '');
+
+        if (title) parts.push(`# ${title}`);
+        if (subtitle) parts.push('', subtitle);
+
+        const sections = Array.from(document.querySelectorAll('.docs-section'));
+        sections.forEach((section) => {
+          const sectionMarkdown = sectionToMarkdown(section);
+          if (sectionMarkdown) parts.push('', sectionMarkdown);
+        });
+
+        const footerTagline = normalizeWhitespace(document.querySelector('.footer-bottom span')?.textContent || '');
+        if (footerTagline) {
+          parts.push('', '---', '', footerTagline);
+        }
+
+        return `${parts.join('\n').replace(/\n{3,}/g, '\n\n').trim()}\n`;
+      }
+
+      function fallbackCopy(text) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.setAttribute('readonly', '');
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        textArea.style.left = '-9999px';
+        textArea.style.top = '0';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        textArea.setSelectionRange(0, text.length);
+
+        let copied = false;
+        try {
+          copied = document.execCommand('copy');
+        } catch (error) {
+          copied = false;
+        }
+
+        document.body.removeChild(textArea);
+        return copied;
+      }
+
+      function setStatus(message, isError) {
+        statusElement.textContent = message;
+        statusElement.classList.toggle('error', Boolean(isError));
+        if (statusResetTimer) window.clearTimeout(statusResetTimer);
+        statusResetTimer = window.setTimeout(() => {
+          statusElement.textContent = '';
+          statusElement.classList.remove('error');
+        }, 3200);
+      }
+
+      async function copyPageAsMarkdown() {
+        const markdown = buildPageMarkdown();
+        if (!markdown) {
+          setStatus('No content found to copy.', true);
+          return;
+        }
+
+        let copied = false;
+
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+          try {
+            await navigator.clipboard.writeText(markdown);
+            copied = true;
+          } catch (error) {
+            copied = false;
+          }
+        }
+
+        if (!copied) copied = fallbackCopy(markdown);
+
+        if (copied) {
+          setStatus('Copied entire page as markdown.');
+        } else {
+          setStatus('Clipboard access failed. Try again in a secure browser context.', true);
+        }
+      }
+
+      copyButton.addEventListener('click', copyPageAsMarkdown);
+    })();
+  </script>
+</body>
+</html>

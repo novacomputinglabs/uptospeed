@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Up to Speed - Benchmark Results</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0d0d1a;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #2a2a3a;
+    }
+    h1 { font-size: 24px; color: #9ef7c7; font-weight: 600; }
+    h1 span { color: #666; font-weight: 400; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚡ Benchmark Results <span>Up to Speed vs ShotGrid</span></h1>
+      <div class="header-actions">
+        <button class="btn" onclick="importResults()">Import JSON</button>
+        <button class="btn" onclick="clearResults()">Clear All</button>
+      </div>
+    </header>
+    <main id="main">
+      <div class="loading">Loading results...</div>
+    </main>
+  </div>
+  <input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleFileImport(event)">
+</body>
+</html>
+
+<style>
+    .btn {
+      background: #2d2d44;
+      border: 1px solid #444;
+      color: #e0e0e0;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    .btn:hover { background: #3d3d54; border-color: #9ef7c7; }
+    .btn.primary { background: #2a5a3a; border-color: #9ef7c7; }
+    .header-actions { display: flex; gap: 8px; }
+    
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .summary-card {
+      background: #1a1a2e;
+      border: 1px solid #2a2a3a;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .summary-card h3 { font-size: 12px; color: #888; text-transform: uppercase; margin-bottom: 8px; }
+    .summary-card .value { font-size: 32px; font-weight: 600; color: #9ef7c7; }
+    .summary-card .label { font-size: 13px; color: #666; margin-top: 4px; }
+    
+    .comparison-section { margin-bottom: 32px; }
+    .comparison-section h2 { font-size: 18px; margin-bottom: 16px; color: #fff; }
+    
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #1a1a2e;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .results-table th, .results-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #2a2a3a;
+    }
+    .results-table th {
+      background: #252538;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #888;
+      font-weight: 500;
+    }
+    .results-table tr:last-child td { border-bottom: none; }
+    .results-table tr:hover { background: #1f1f32; }
+    
+    .metric-value { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .metric-good { color: #9ef7c7; }
+    .metric-warn { color: #f7d794; }
+    .metric-bad { color: #ff6b6b; }
+    
+    .bar-container { display: flex; align-items: center; gap: 12px; }
+    .bar {
+      height: 8px;
+      border-radius: 4px;
+      min-width: 4px;
+      transition: width 0.3s;
+    }
+    .bar.uptospeed { background: #9ef7c7; }
+    .bar.shotgrid { background: #6c5ce7; }
+    
+    .legend {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 16px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+    .legend-dot.uptospeed { background: #9ef7c7; }
+    .legend-dot.shotgrid { background: #6c5ce7; }
+    
+    .run-selector {
+      background: #1a1a2e;
+      border: 1px solid #2a2a3a;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+    .run-selector h3 { font-size: 14px; margin-bottom: 12px; }
+    .run-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .run-item {
+      background: #252538;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .run-item:hover { border-color: #9ef7c7; }
+    .run-item.selected { background: #2a5a3a; border-color: #9ef7c7; }
+    .run-item .source { 
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+      margin-right: 6px;
+    }
+    .run-item .source.uptospeed { background: rgba(158,247,199,0.2); color: #9ef7c7; }
+    .run-item .source.shotgrid { background: rgba(108,92,231,0.2); color: #a29bfe; }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+    .empty-state h2 { color: #888; margin-bottom: 12px; }
+    .empty-state p { margin-bottom: 24px; }
+    
+    .chart-container {
+      background: #1a1a2e;
+      border: 1px solid #2a2a3a;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .chart-container h3 { font-size: 14px; margin-bottom: 16px; }
+    
+    .comparison-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #2a2a3a;
+    }
+    .comparison-row:last-child { border-bottom: none; }
+    .comparison-label { width: 180px; font-size: 13px; color: #aaa; }
+    .comparison-bars { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .comparison-bar-row { display: flex; align-items: center; gap: 8px; }
+    .comparison-bar-label { width: 80px; font-size: 11px; color: #666; }
+    .comparison-bar-value { width: 60px; font-size: 12px; font-weight: 500; text-align: right; }
+    
+    .speedup-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .speedup-badge.faster { background: rgba(158,247,199,0.2); color: #9ef7c7; }
+    .speedup-badge.slower { background: rgba(255,107,107,0.2); color: #ff6b6b; }
+    .speedup-badge.same { background: rgba(255,255,255,0.1); color: #888; }
+
+    .loading { text-align: center; padding: 40px; color: #666; }
+    
+    .meta-info {
+      font-size: 12px;
+      color: #666;
+      margin-top: 8px;
+    }
+    .meta-info span { margin-right: 16px; }
+</style>
+
+<script>
+  // State
+  let allResults = [];
+  let selectedUptospeed = null;
+  let selectedShotgrid = null;
+
+  // Load results from localStorage, parent window, and repo file
+  async function loadResults() {
+    try {
+      // Try to get from opener (if opened from main app)
+      if (window.opener && window.opener.benchmarkRunner) {
+        const stored = window.opener.benchmarkRunner.getStoredResults();
+        if (stored.length) allResults = stored;
+      }
+      
+      // Also check localStorage directly
+      const local = JSON.parse(localStorage.getItem('uptospeed_benchmarks') || '[]');
+      
+      // Merge, avoiding duplicates by ID
+      const ids = new Set(allResults.map(r => r.id));
+      for (const r of local) {
+        if (!ids.has(r.id)) {
+          allResults.push(r);
+          ids.add(r.id);
+        }
+      }
+      
+      // Load from repo file
+      try {
+        const response = await fetch('results-data.json');
+        if (response.ok) {
+          const repoData = await response.json();
+          if (repoData.results && Array.isArray(repoData.results)) {
+            for (const r of repoData.results) {
+              if (r.id && !ids.has(r.id)) {
+                allResults.push(r);
+                ids.add(r.id);
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.log('No repo results file found');
+      }
+      
+      // Sort by timestamp descending
+      allResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      
+      // Auto-select most recent of each type
+      selectedUptospeed = allResults.find(r => r.source === 'uptospeed');
+      selectedShotgrid = allResults.find(r => r.source === 'shotgrid');
+      
+    } catch (err) {
+      console.error('Failed to load results:', err);
+    }
+    
+    render();
+  }
+
+  function formatDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-US', { 
+      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+    });
+  }
+
+  function getSpeedupBadge(uts, sg) {
+    if (!uts || !sg) return '';
+    const ratio = sg / uts;
+    if (ratio > 1.2) {
+      return `<span class="speedup-badge faster">${ratio.toFixed(1)}x faster</span>`;
+    } else if (ratio < 0.8) {
+      return `<span class="speedup-badge slower">${(1/ratio).toFixed(1)}x slower</span>`;
+    }
+    return `<span class="speedup-badge same">~same</span>`;
+  }
+
+  function getMetricClass(value, thresholds) {
+    if (value <= thresholds.good) return 'metric-good';
+    if (value <= thresholds.warn) return 'metric-warn';
+    return 'metric-bad';
+  }
+
+  function render() {
+    const main = document.getElementById('main');
+    
+    if (allResults.length === 0) {
+      main.innerHTML = `
+        <div class="empty-state">
+          <h2>No Benchmark Results Yet</h2>
+          <p>Run benchmarks from the main app or import existing results.</p>
+          <button class="btn primary" onclick="importResults()">Import JSON Results</button>
+        </div>
+      `;
+      return;
+    }
+
+    const uptospeedRuns = allResults.filter(r => r.source === 'uptospeed');
+    const shotgridRuns = allResults.filter(r => r.source === 'shotgrid');
+
+    let html = `
+      <div class="run-selector">
+        <h3>Select Runs to Compare</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          <div>
+            <div class="legend-item" style="margin-bottom: 8px;">
+              <div class="legend-dot uptospeed"></div>
+              <span>Up to Speed (${uptospeedRuns.length} runs)</span>
+            </div>
+            <div class="run-list">
+              ${uptospeedRuns.map(r => `
+                <div class="run-item ${selectedUptospeed?.id === r.id ? 'selected' : ''}" 
+                     onclick="selectRun('uptospeed', '${r.id}')">
+                  <span class="source uptospeed">UTS</span>
+                  ${formatDate(r.timestamp)} · ${r.taskCount || '?'} tasks
+                </div>
+              `).join('')}
+              ${uptospeedRuns.length === 0 ? '<div style="color:#666;font-size:12px;">No runs yet</div>' : ''}
+            </div>
+          </div>
+          <div>
+            <div class="legend-item" style="margin-bottom: 8px;">
+              <div class="legend-dot shotgrid"></div>
+              <span>ShotGrid (${shotgridRuns.length} runs)</span>
+            </div>
+            <div class="run-list">
+              ${shotgridRuns.map(r => `
+                <div class="run-item ${selectedShotgrid?.id === r.id ? 'selected' : ''}" 
+                     onclick="selectRun('shotgrid', '${r.id}')">
+                  <span class="source shotgrid">SG</span>
+                  ${formatDate(r.timestamp)}
+                </div>
+              `).join('')}
+              ${shotgridRuns.length === 0 ? '<div style="color:#666;font-size:12px;">Import ShotGrid results</div>' : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Summary cards
+    if (selectedUptospeed) {
+      const tests = selectedUptospeed.tests;
+      html += `
+        <div class="summary-cards">
+          <div class="summary-card">
+            <h3>Board Render</h3>
+            <div class="value">${tests.boardRender?.avg || '—'}<span style="font-size:14px;color:#666">ms</span></div>
+            <div class="label">p95: ${tests.boardRender?.p95 || '—'}ms</div>
+          </div>
+          <div class="summary-card">
+            <h3>Filter Speed</h3>
+            <div class="value">${tests.filterTasks?.avg || '—'}<span style="font-size:14px;color:#666">ms</span></div>
+            <div class="label">p95: ${tests.filterTasks?.p95 || '—'}ms</div>
+          </div>
+          <div class="summary-card">
+            <h3>Scroll FPS</h3>
+            <div class="value">${tests.scrollFPS?.fps || '—'}<span style="font-size:14px;color:#666">fps</span></div>
+            <div class="label">${tests.scrollFPS?.droppedFrames || 0} dropped frames</div>
+          </div>
+          <div class="summary-card">
+            <h3>Memory</h3>
+            <div class="value">${tests.memoryUsage?.heapUsed || '—'}<span style="font-size:14px;color:#666">MB</span></div>
+            <div class="label">of ${tests.memoryUsage?.heapTotal || '—'}MB allocated</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Comparison chart
+    html += renderComparisonChart();
+
+    // Detailed results table
+    html += renderResultsTable();
+
+    main.innerHTML = html;
+  }
+</script>
+
+<script>
+  function renderComparisonChart() {
+    if (!selectedUptospeed) return '';
+    
+    const uts = selectedUptospeed.tests;
+    const sg = selectedShotgrid?.tests || {};
+    
+    const metrics = [
+      { key: 'boardRender', label: 'Board Render', field: 'avg' },
+      { key: 'kanbanRender', label: 'Kanban View', field: 'avg' },
+      { key: 'listRender', label: 'List View', field: 'avg' },
+      { key: 'ganttRender', label: 'Gantt Chart', field: 'avg' },
+      { key: 'filterAndRender', label: 'Filter + Render', field: 'avg' },
+      { key: 'taskStatusUpdate', label: 'Task Update', field: 'avg' },
+      { key: 'undoRedo', label: 'Undo/Redo', field: 'avg' },
+    ];
+    
+    // Find max for scaling
+    let maxVal = 0;
+    for (const m of metrics) {
+      const utsVal = uts[m.key]?.[m.field] || 0;
+      const sgVal = sg.longTasks?.[m.field] || 0;
+      maxVal = Math.max(maxVal, utsVal, sgVal);
+    }
+    maxVal = maxVal || 100;
+    
+    let rows = '';
+    for (const m of metrics) {
+      const utsVal = uts[m.key]?.[m.field];
+      const sgVal = sg.longTasks?.[m.field]; // ShotGrid only has longTasks metric
+      
+      const utsWidth = utsVal ? (utsVal / maxVal * 100) : 0;
+      
+      rows += `
+        <div class="comparison-row">
+          <div class="comparison-label">${m.label}</div>
+          <div class="comparison-bars">
+            <div class="comparison-bar-row">
+              <div class="comparison-bar-label">Up to Speed</div>
+              <div class="bar uptospeed" style="width: ${Math.max(utsWidth, 2)}%"></div>
+              <div class="comparison-bar-value">${utsVal ? utsVal + 'ms' : '—'}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    
+    // FPS comparison
+    const utsFps = uts.scrollFPS?.fps;
+    const sgFps = sg.fps?.fps;
+    const maxFps = Math.max(utsFps || 0, sgFps || 0, 60);
+    
+    rows += `
+      <div class="comparison-row">
+        <div class="comparison-label">Frame Rate</div>
+        <div class="comparison-bars">
+          <div class="comparison-bar-row">
+            <div class="comparison-bar-label">Up to Speed</div>
+            <div class="bar uptospeed" style="width: ${utsFps ? (utsFps / maxFps * 100) : 0}%"></div>
+            <div class="comparison-bar-value">${utsFps ? utsFps + ' fps' : '—'}</div>
+          </div>
+          ${sgFps ? `
+          <div class="comparison-bar-row">
+            <div class="comparison-bar-label">ShotGrid</div>
+            <div class="bar shotgrid" style="width: ${sgFps / maxFps * 100}%"></div>
+            <div class="comparison-bar-value">${sgFps} fps</div>
+          </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+    
+    return `
+      <div class="chart-container">
+        <h3>Performance Comparison (lower is better for time, higher for FPS)</h3>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot uptospeed"></div> Up to Speed</div>
+          ${selectedShotgrid ? '<div class="legend-item"><div class="legend-dot shotgrid"></div> ShotGrid</div>' : ''}
+        </div>
+        ${rows}
+      </div>
+    `;
+  }
+
+  function renderResultsTable() {
+    if (!selectedUptospeed) return '';
+    
+    const tests = selectedUptospeed.tests;
+    const testKeys = Object.keys(tests).filter(k => tests[k] && !tests[k].error);
+    
+    let rows = '';
+    for (const key of testKeys) {
+      const t = tests[key];
+      
+      if (t.fps !== undefined) {
+        // FPS metric
+        rows += `
+          <tr>
+            <td>${t.name}</td>
+            <td class="metric-value ${t.fps >= 55 ? 'metric-good' : t.fps >= 30 ? 'metric-warn' : 'metric-bad'}">${t.fps} fps</td>
+            <td>${t.avgFrameTime}ms</td>
+            <td>—</td>
+            <td>—</td>
+            <td>${t.droppedFrames} dropped</td>
+          </tr>
+        `;
+      } else if (t.heapUsed !== undefined) {
+        // Memory metric
+        rows += `
+          <tr>
+            <td>${t.name}</td>
+            <td class="metric-value">${t.heapUsed} MB</td>
+            <td>${t.heapTotal} MB total</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Limit: ${t.heapLimit} MB</td>
+          </tr>
+        `;
+      } else if (t.avg !== undefined) {
+        // Timing metric
+        const cls = getMetricClass(t.avg, { good: 16, warn: 50 });
+        rows += `
+          <tr>
+            <td>${t.name}</td>
+            <td class="metric-value ${cls}">${t.avg}ms</td>
+            <td>${t.p50}ms</td>
+            <td>${t.p95}ms</td>
+            <td>${t.min}ms - ${t.max}ms</td>
+            <td>${t.samples} samples</td>
+          </tr>
+        `;
+      }
+    }
+    
+    return `
+      <div class="comparison-section">
+        <h2>Detailed Results</h2>
+        <div class="meta-info">
+          <span>📅 ${formatDate(selectedUptospeed.timestamp)}</span>
+          <span>📊 ${selectedUptospeed.taskCount} tasks</span>
+          <span>🖥️ ${selectedUptospeed.windowSize}</span>
+        </div>
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Test</th>
+              <th>Average</th>
+              <th>P50</th>
+              <th>P95</th>
+              <th>Range</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function selectRun(source, id) {
+    const run = allResults.find(r => r.id === id);
+    if (!run) return;
+    
+    if (source === 'uptospeed') {
+      selectedUptospeed = run;
+    } else {
+      selectedShotgrid = run;
+    }
+    render();
+  }
+
+  function importResults() {
+    document.getElementById('fileInput').click();
+  }
+
+  function handleFileImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        
+        // Handle repo data format (has results array wrapper)
+        let results;
+        if (data.results && Array.isArray(data.results)) {
+          results = data.results;
+        } else if (Array.isArray(data)) {
+          results = data;
+        } else {
+          results = [data];
+        }
+        
+        for (const r of results) {
+          if (!r.id || !r.timestamp) {
+            console.warn('Invalid result format:', r);
+            continue;
+          }
+          
+          // Check for duplicate
+          if (allResults.some(existing => existing.id === r.id)) {
+            console.log('Skipping duplicate:', r.id);
+            continue;
+          }
+          
+          allResults.push(r);
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('uptospeed_benchmarks', JSON.stringify(allResults));
+        
+        // Re-sort and render
+        allResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        // Auto-select imported if it's the first of its type
+        for (const r of results) {
+          if (r.source === 'shotgrid' && !selectedShotgrid) {
+            selectedShotgrid = r;
+          } else if (r.source === 'uptospeed' && !selectedUptospeed) {
+            selectedUptospeed = r;
+          }
+        }
+        
+        render();
+        alert(`Imported ${results.length} result(s) successfully!`);
+      } catch (err) {
+        alert('Failed to parse JSON: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  }
+
+  function clearResults() {
+    if (!confirm('Clear all stored benchmark results?')) return;
+    allResults = [];
+    selectedUptospeed = null;
+    selectedShotgrid = null;
+    localStorage.removeItem('uptospeed_benchmarks');
+    render();
+  }
+
+  // Initialize
+  document.addEventListener('DOMContentLoaded', loadResults);
+</script>

@@ -1,0 +1,396 @@
+/* UP TO SPEED — Docs Page Styles
+   Shared styles for Getting Started and Server Config pages.
+   Builds on top of styles.css.
+*/
+
+/* ─── Docs Hero (compact) ─── */
+.docs-hero {
+  position: relative;
+  padding: 140px 32px 64px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.docs-hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.docs-hero-content h1 {
+  font-family: var(--brand-font-display, 'Syne', sans-serif);
+  font-weight: 800;
+  font-size: clamp(32px, 5vw, 52px);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--text);
+  margin: 16px 0 0;
+}
+
+.docs-hero-sub {
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-top: 16px;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.docs-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.docs-section-head h2 {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.docs-copy-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+}
+
+.docs-copy-button {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-family: var(--brand-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.docs-copy-button:hover {
+  border-color: var(--accent);
+  background: rgba(255, 153, 143, 0.12);
+  transform: translateY(-1px);
+}
+
+.docs-copy-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.docs-copy-status {
+  min-height: 1.2em;
+  font-family: var(--brand-font-mono);
+  font-size: 11px;
+  color: var(--green);
+}
+
+.docs-copy-status.error {
+  color: var(--red);
+}
+
+/* ─── Docs Content ─── */
+.docs-content {
+  background: var(--bg);
+  padding: 80px 0 120px;
+  position: relative;
+}
+
+.docs-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+.docs-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ─── Docs Sections ─── */
+.docs-section {
+  margin-bottom: 64px;
+}
+
+.docs-section:last-child {
+  margin-bottom: 0;
+}
+
+.docs-section h2 {
+  font-family: var(--brand-font-display, 'Syne', sans-serif);
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.docs-section h3 {
+  font-family: var(--brand-font-body, 'Instrument Sans', sans-serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 28px;
+  margin-bottom: 8px;
+}
+
+.docs-section p {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+
+.docs-section p:last-child {
+  margin-bottom: 0;
+}
+
+.docs-section a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.docs-section a:hover {
+  color: var(--accent-hover);
+}
+
+/* ─── Steps Grid ─── */
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.step-card {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 28px 24px;
+  transition: border-color 0.25s, transform 0.25s;
+}
+
+.step-card:hover {
+  border-color: var(--border);
+  transform: translateY(-2px);
+}
+
+.step-number {
+  font-family: var(--brand-font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent);
+  background: var(--accent-dim);
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.step-card h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+
+.step-card p {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ─── Docs Tables ─── */
+.docs-table-wrap {
+  overflow-x: auto;
+  margin: 16px 0;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+}
+
+.docs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.docs-table thead {
+  background: var(--surface);
+}
+
+.docs-table th {
+  font-family: var(--brand-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: left;
+  padding: 10px 16px;
+}
+
+.docs-table td {
+  padding: 10px 16px;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.docs-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+/* ─── Code blocks ─── */
+.docs-code {
+  background: var(--bg-deep);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  overflow-x: auto;
+  margin: 12px 0 16px;
+}
+
+.docs-code pre {
+  margin: 0;
+  padding: 16px 20px;
+}
+
+.docs-code code {
+  font-family: var(--brand-font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* Inline code */
+.docs-section code,
+.docs-table code {
+  font-family: var(--brand-font-mono);
+  font-size: 0.88em;
+  background: var(--surface);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--accent);
+}
+
+.docs-code code {
+  background: none;
+  padding: 0;
+  color: var(--text-secondary);
+}
+
+/* Kbd */
+kbd {
+  font-family: var(--brand-font-mono);
+  font-size: 0.85em;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: var(--text);
+}
+
+/* ─── Info Cards Grid ─── */
+.docs-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.docs-info-card {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 24px;
+  transition: border-color 0.25s;
+}
+
+.docs-info-card:hover {
+  border-color: var(--border);
+}
+
+.docs-info-card h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+
+.docs-info-card p {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Badge */
+.docs-badge {
+  font-family: var(--brand-font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--green);
+  background: var(--green-dim);
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* Active nav link */
+.nav-links a.active {
+  color: var(--text);
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
+  .docs-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .docs-hero {
+    padding: 120px 20px 48px;
+  }
+  .docs-inner {
+    padding: 0 20px;
+  }
+  .docs-section-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .docs-copy-inline {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .docs-copy-button {
+    width: 100%;
+    max-width: 320px;
+  }
+  .docs-copy-status {
+    text-align: left;
+  }
+}

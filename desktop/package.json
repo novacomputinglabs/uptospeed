@@ -1,0 +1,106 @@
+{
+  "name": "uptospeed-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Electron desktop runtime for UP TO SPEED",
+  "main": "src/main.mjs",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "test": "node --test tests/*.test.mjs",
+    "build:python": "node scripts/build-python-backend.mjs",
+    "smoke:packaged": "node scripts/playwright-packaged-smoke.mjs",
+    "predist": "npm run build:python",
+    "dist": "electron-builder",
+    "predist:dir": "npm run build:python",
+    "dist:dir": "electron-builder --dir"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.uptospeed.desktop",
+    "productName": "UP TO SPEED",
+    "asar": true,
+    "artifactName": "uptospeed-desktop-${version}-${os}-${arch}.${ext}",
+    "directories": {
+      "output": "releases"
+    },
+    "files": [
+      "src/**/*",
+      "ui/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../index.html",
+        "to": "app-root/index.html"
+      },
+      {
+        "from": "../app.js",
+        "to": "app-root/app.js"
+      },
+      {
+        "from": "../styles.css",
+        "to": "app-root/styles.css"
+      },
+      {
+        "from": "../data.js",
+        "to": "app-root/data.js"
+      },
+      {
+        "from": "../brand-tokens.css",
+        "to": "app-root/brand-tokens.css"
+      },
+      {
+        "from": "../assets",
+        "to": "app-root/assets"
+      },
+      {
+        "from": "resources/backend",
+        "to": "backend"
+      },
+      {
+        "from": "../mcp/src",
+        "to": "mcp/src"
+      },
+      {
+        "from": "../mcp/package.json",
+        "to": "mcp/package.json"
+      },
+      {
+        "from": "../mcp/package-lock.json",
+        "to": "mcp/package-lock.json"
+      },
+      {
+        "from": "../mcp/node_modules",
+        "to": "mcp/node_modules"
+      }
+    ],
+    "mac": {
+      "binaries": [
+        "Contents/Resources/backend/shotgrid_server"
+      ],
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "zip"
+      ],
+      "category": "Office"
+    }
+  }
+}

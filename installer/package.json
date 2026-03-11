@@ -1,0 +1,27 @@
+{
+  "name": "uptospeed-desktop-installer",
+  "version": "0.1.0",
+  "description": "Bun-first installer for the UP TO SPEED desktop app",
+  "type": "module",
+  "bin": {
+    "uptospeed-desktop-installer": "bin/uptospeed.mjs"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "uptospeed",
+    "electron",
+    "installer",
+    "bun"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UP TO SPEED Desktop</title>
+  <meta name="description" content="UP TO SPEED desktop runtime bootstrap">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./bootstrap.css">
+</head>
+<body>
+  <main class="bootstrap-shell">
+    <section class="bootstrap-card">
+      <div class="hero">
+        <div class="hero-mark">UTS</div>
+        <div class="hero-copy">
+          <p class="eyebrow">Desktop Runtime</p>
+          <h1 id="title">Preparing desktop runtime</h1>
+          <p id="detail" class="detail">Initializing local services.</p>
+        </div>
+      </div>
+
+      <div id="message" class="message" hidden></div>
+      <div id="error" class="error" hidden></div>
+
+      <section id="importPanel" class="panel" hidden>
+        <h2>Bring over an existing repo</h2>
+        <p>
+          Select your old UP TO SPEED repo folder to import the local broker database, cache snapshot, and managed SQLCipher key
+          before the desktop runtime starts.
+        </p>
+        <div class="actions">
+          <button id="importBtn" class="btn btn-primary">Import Existing Repo Data</button>
+          <button id="continueBtn" class="btn btn-secondary">Start Fresh Desktop Runtime</button>
+        </div>
+      </section>
+
+      <section id="progressPanel" class="panel" hidden>
+        <div id="steps" class="steps"></div>
+      </section>
+
+      <section id="errorPanel" class="panel" hidden>
+        <div class="actions">
+          <button id="retryBtn" class="btn btn-primary">Retry Launch</button>
+          <button id="logsBtn" class="btn btn-secondary">Open Logs Folder</button>
+          <button id="quitBtn" class="btn btn-ghost">Quit</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="logs-header">
+          <h2>Recent logs</h2>
+          <span class="logs-hint">Most recent lines from desktop, backend, and gateway.</span>
+        </div>
+        <pre id="logs" class="logs">Waiting for startup output…</pre>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="./bootstrap.js"></script>
+</body>
+</html>

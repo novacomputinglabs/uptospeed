@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Server Config — UP TO SPEED</title>
+  <meta name="description" content="Configure the local proxy server to sync Up to Speed with Flow Production Tracking data for your creative projects.">
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const storageKey = 'uts-landing-theme';
+      root.classList.add('js');
+
+      const normalizeTheme = (value) => (
+        value === 'light' || value === 'dark' ? value : null
+      );
+
+      let storedTheme = null;
+      try {
+        storedTheme = normalizeTheme(window.localStorage.getItem(storageKey));
+      } catch {
+        storedTheme = null;
+      }
+
+      const systemTheme = (
+        window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+      ) ? 'dark' : 'light';
+
+      const initialTheme = storedTheme || systemTheme;
+      root.setAttribute('data-theme', initialTheme);
+      root.style.colorScheme = initialTheme;
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../brand-tokens.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Navigation -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo" aria-label="Up to Speed home">UP TO SPEED</a>
+      <div class="nav-links">
+        <a href="index.html#showcase">Why</a>
+        <a href="index.html#speed">Speed</a>
+        <a href="index.html#roadmap">Roadmap</a>
+        <a href="getting-started.html">Getting Started</a>
+        <a href="server-config.html" class="active" aria-current="page">Server Config</a>
+      </div>
+      <div class="theme-toggle" role="group" aria-label="Color theme">
+        <button type="button" class="theme-toggle-btn" data-theme-toggle="dark" aria-pressed="false">Dark</button>
+        <button type="button" class="theme-toggle-btn" data-theme-toggle="light" aria-pressed="false">Light</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="docs-hero" aria-labelledby="docs-hero-heading">
+    <div class="hero-bg" aria-hidden="true">
+      <div class="hero-grid"></div>
+      <div class="hero-glow"></div>
+    </div>
+    <div class="docs-hero-content">
+      <span class="section-tag">Docs</span>
+      <h1 id="docs-hero-heading">Server Config</h1>
+      <p class="docs-hero-sub">Connect to Flow Production Tracking to keep creative projects aligned — optional and fully local.</p>
+    </div>
+  </section>
+
+  <!-- Content -->
+  <main class="docs-content">
+    <div class="docs-inner">
+
+      <!-- Flow Production Tracking proxy -->
+      <section class="docs-section" id="fpt-proxy">
+        <h2>Flow Production Tracking proxy server</h2>
+        <p>The local proxy lets you pull tasks from a real Flow Production Tracking site and push changes back. It runs on your machine — nothing leaves your network except Flow Production Tracking API calls.</p>
+
+        <h3>Authentication options</h3>
+        <p>Flow Production Tracking's REST API uses token grants. The app supports two methods:</p>
+        <div class="docs-cards-grid">
+          <div class="docs-info-card">
+            <h3>Studio script <span class="docs-badge">Recommended</span></h3>
+            <p>Uses <code>client_credentials</code> via a script name and API key. Best for teams — no one needs to enter personal credentials.</p>
+          </div>
+          <div class="docs-info-card">
+            <h3>Personal sign-in</h3>
+            <p>Users sign in with their Flow Production Tracking API passphrase/token (not their Autodesk SSO password). No env vars needed.</p>
+          </div>
+        </div>
+
+        <h3>1. Configure credentials</h3>
+        <p>Copy <code>.env.example</code> to <code>.env.local</code> and fill in your values:</p>
+        <div class="docs-code">
+          <pre><code>SHOTGRID_URL=https://your-studio.shotgrid.autodesk.com
+SHOTGRID_SCRIPT_NAME=your-script-name
+SHOTGRID_API_KEY=your-api-key
+
+# Optional: default project id
+SHOTGRID_PROJECT_ID=</code></pre>
+        </div>
+        <p>For personal sign-in, you can leave the file empty — just set <code>SHOTGRID_URL</code> to pre-fill the site URL field in the UI.</p>
+
+        <h3>2. Start the server</h3>
+        <div class="docs-code">
+          <pre><code>python3 server/shotgrid_server.py</code></pre>
+        </div>
+
+        <h3>3. Open the app</h3>
+        <p>Navigate to <code>http://127.0.0.1:7331/</code>. If you open <code>index.html</code> directly instead, go to Settings → Flow Production Tracking and set the server URL to <code>http://127.0.0.1:7331</code>.</p>
+
+        <h3>4. Connect and choose a project</h3>
+        <p>Complete onboarding (or go to Settings → Flow Production Tracking → "Connect to Flow Production Tracking…"), pick your auth method, select a project, then use <code>SG Sync</code> to pull and <code>SG Push</code> to push.</p>
+      </section>
+
+      <!-- Environment variables -->
+      <section class="docs-section" id="env-vars">
+        <h2>Environment variables</h2>
+        <div class="docs-table-wrap">
+          <table class="docs-table">
+            <thead>
+              <tr><th>Variable</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>SHOTGRID_URL</code></td><td>Your studio's Flow Production Tracking URL</td></tr>
+              <tr><td><code>SHOTGRID_SCRIPT_NAME</code></td><td>Script name for service account auth</td></tr>
+              <tr><td><code>SHOTGRID_API_KEY</code></td><td>API key for service account auth</td></tr>
+              <tr><td><code>SHOTGRID_PROJECT_ID</code></td><td>Default project ID (optional)</td></tr>
+              <tr><td><code>SHOTGRID_CACHE_TTL_SECONDS</code></td><td>Cache TTL in seconds (default: 300, set 0 to disable)</td></tr>
+              <tr><td><code>SHOTGRID_DEBUG</code></td><td>Enable verbose logging (<code>1</code> to enable)</td></tr>
+              <tr><td><code>SHOTGRID_FIELD_DEPT_PROD_NOTE</code></td><td>Custom field name for department production notes</td></tr>
+              <tr><td><code>SHOTGRID_FIELD_TARGET_STATUS_SUMMARY</code></td><td>Custom field name for target status</td></tr>
+              <tr><td><code>SHOTGRID_FIELD_TASK_COMMENTS</code></td><td>Custom field name for task comments</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Troubleshooting -->
+      <section class="docs-section" id="troubleshooting">
+        <h2>Troubleshooting</h2>
+        <p>If <code>SG Sync</code> fails, the UI shows the upstream Flow Production Tracking status and a hint when available. Enable verbose logging for more detail:</p>
+        <div class="docs-code">
+          <pre><code>SHOTGRID_DEBUG=1 python3 server/shotgrid_server.py</code></pre>
+        </div>
+        <div class="docs-table-wrap">
+          <table class="docs-table">
+            <thead>
+              <tr><th>Status</th><th>Cause</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>401</code> / <code>400</code></td><td>Invalid or expired credentials — reconnect or verify script name/key</td></tr>
+              <tr><td><code>403</code></td><td>Permissions — script/user role can see projects but not tasks</td></tr>
+              <tr><td><code>404</code></td><td>Wrong <code>SHOTGRID_URL</code> — must be your studio site</td></tr>
+              <tr><td><code>422</code></td><td>Field mismatch — remove or adjust <code>SHOTGRID_FIELD_*</code> overrides</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Performance -->
+      <section class="docs-section" id="performance">
+        <h2>Performance notes</h2>
+        <p>The proxy caches <code>/api/shotgrid/tasks</code> responses in-memory for 5 minutes by default and persists a small disk cache for fast restarts. Override with <code>SHOTGRID_CACHE_TTL_SECONDS</code> (set <code>0</code> to disable).</p>
+        <p>The browser UI loads cached tasks immediately and refreshes in the background when "Auto-sync on load" is enabled.</p>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="footer-logo">UP TO SPEED</span>
+        <p>A workspace for producing and managing creative projects.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="index.html#showcase">Why Up to Speed</a>
+          <a href="index.html#views">Views</a>
+          <a href="index.html#roadmap">Roadmap</a>
+        </div>
+        <div class="footer-col">
+          <h4>Community</h4>
+          <a href="index.html#waitlist">Join Waitlist</a>
+          <a href="index.html#feature-request">Request a Feature</a>
+        </div>
+        <div class="footer-col">
+          <h4>Setup</h4>
+          <a href="getting-started.html">Getting Started</a>
+          <a href="server-config.html">Server Config</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>Made for creative teams who are tired of waiting.</span>
+    </div>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>
