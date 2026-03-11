@@ -88,7 +88,7 @@
         <p>Up to Speed now ships as a desktop app and still supports a browser-only workflow. Install the desktop build for the full local runtime, or open the browser build for quick read-only access.</p>
 
         <h3>Install the desktop app</h3>
-        <div class="docs-code"><pre><code>bunx --bun uptospeed-desktop-installer</code></pre></div>
+        <div class="docs-code"><pre><code>bun install -g https://github.com/novacomputinglabs/uptospeed/releases/latest/download/uptospeed-desktop-installer.tgz &amp;&amp; "$(bun pm bin -g)/uptospeed-desktop-installer"</code></pre></div>
         <p>The installer downloads the latest desktop release for your OS, installs it into a user-writable location, and opens the app. If you prefer a browser-only workflow, keep using <code>index.html</code> directly.</p>
 
         <div class="docs-cards-grid" style="margin-bottom: 32px;">

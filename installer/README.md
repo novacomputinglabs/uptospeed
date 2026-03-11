@@ -1,16 +1,16 @@
 # UP TO SPEED Desktop Installer
 
-Publish this package to npm to expose a one-command desktop installer for the latest GitHub release.
+This package can be shipped directly from GitHub Releases to expose a one-command desktop installer for the latest desktop release.
 
 Website command:
 
 ```bash
-bunx --bun uptospeed-desktop-installer
+bun install -g https://github.com/novacomputinglabs/uptospeed/releases/latest/download/uptospeed-desktop-installer.tgz && "$(bun pm bin -g)/uptospeed-desktop-installer"
 ```
 
 That command:
 
-- downloads the installer package itself from the npm registry
+- downloads the installer package itself from the latest GitHub release
 - resolves the latest GitHub release from the configured release repo
 - downloads the matching desktop zip for the current OS and CPU architecture
 - installs it into a user-writable location
@@ -35,14 +35,16 @@ cd installer
 npm test
 ```
 
-## Publish
+## Package a release tarball
 
 ```bash
 cd installer
-npm publish --access public
+npm pack
 ```
 
-## CI publish
+Upload both `uptospeed-desktop-installer-<version>.tgz` and a stable alias like `uptospeed-desktop-installer.tgz` to the same GitHub release as the desktop app bundles.
+
+## Optional npm publish
 
 This repo includes a publish workflow at `.github/workflows/publish-installer.yml`.
 

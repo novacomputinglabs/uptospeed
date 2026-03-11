@@ -12,13 +12,13 @@ That starts the writable UI/backend, the local ShotGrid proxy, and the agent gat
 
 ## Desktop install (Bun)
 
-After publishing the installer package from `installer/package.json`, the website install command is:
+The website install command is:
 
 ```bash
-bunx --bun uptospeed-desktop-installer
+bun install -g https://github.com/novacomputinglabs/uptospeed/releases/latest/download/uptospeed-desktop-installer.tgz && "$(bun pm bin -g)/uptospeed-desktop-installer"
 ```
 
-That installer package downloads the latest GitHub desktop release for the current platform, installs it into a user-writable location, and launches the app. The installer package lives in `installer/package.json`.
+That command downloads the installer tarball from the latest GitHub release, installs it with Bun, then runs the installer binary. The installer downloads the latest desktop release for the current platform, installs it into a user-writable location, and launches the app. The installer source lives in `installer/package.json`.
 
 ## Public launch export
 

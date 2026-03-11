@@ -72,6 +72,6 @@ test('defaultInstallPlan returns platform-specific install targets', () => {
   assert.equal(linuxPlan.symlinkPath, '/home/tester/.local/bin/uptospeed-desktop');
 });
 
-test('installerHelpText advertises the bunx install command', () => {
-  assert.match(installerHelpText(), /bunx --bun uptospeed-desktop-installer/);
+test('installerHelpText advertises the installed binary command', () => {
+  assert.match(installerHelpText(), /^UP TO SPEED desktop installer[\s\S]*uptospeed-desktop-installer/m);
 });
