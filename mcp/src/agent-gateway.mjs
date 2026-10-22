@@ -13,6 +13,7 @@ import {
 const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = 7340;
 const AUTH_HEADER = 'x-uts-agent-token';
+const MAX_BODY_BYTES = 1024 * 1024;
 const DEFAULT_TOKEN = 'uptospeed-agent-gateway-dev-token';
 
 function jsonResponse(res, status, payload) {
@@ -28,8 +29,23 @@ function jsonResponse(res, status, payload) {
 function parseRequestBody(req) {
   return new Promise((resolve, reject) => {
     const chunks = [];
-    req.on('data', (chunk) => chunks.push(chunk));
+    let size = 0;
+    let exceeded = false;
+    req.on('data', (chunk) => {
+      size += chunk.length;
+      if (size > MAX_BODY_BYTES) {
+        if (!exceeded) {
+          exceeded = true;
+          chunks.length = 0;
+          reject(Object.assign(new Error('Request body too large.'), { statusCode: 413 }));
+        }
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on('aborted', () => reject(new Error('Request aborted.')));
     req.on('end', () => {
+      if (exceeded) return;
       if (chunks.length === 0) {
         resolve(null);
         return;
@@ -49,7 +65,7 @@ function isLocalRequest(req) {
   const remote = String(req.socket?.remoteAddress || '');
   if (!remote) return false;
   if (remote === '127.0.0.1' || remote === '::1') return true;
-  return remote.endsWith('127.0.0.1');
+  return remote === '::ffff:127.0.0.1';
 }
 
 function getGatewayToken() {
@@ -61,7 +77,9 @@ function isAuthorizedRequest(req, token) {
   if (!isLocalRequest(req)) return false;
   const incoming = String(req.headers[AUTH_HEADER] || '').trim();
   if (!incoming) return false;
-  return crypto.timingSafeEqual(Buffer.from(incoming), Buffer.from(token));
+  const incomingBytes = Buffer.from(incoming);
+  const tokenBytes = Buffer.from(token);
+  return incomingBytes.length === tokenBytes.length && crypto.timingSafeEqual(incomingBytes, tokenBytes);
 }
 
 export function createGatewayManifest(definitions = MCP_TOOL_DEFINITIONS) {
@@ -75,26 +93,9 @@ export function createGatewayManifest(definitions = MCP_TOOL_DEFINITIONS) {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export async function startAgentGateway() {
-  const host = String(process.env.UTS_AGENT_GATEWAY_HOST || DEFAULT_HOST).trim() || DEFAULT_HOST;
-  const port = Number.parseInt(String(process.env.UTS_AGENT_GATEWAY_PORT || DEFAULT_PORT), 10) || DEFAULT_PORT;
-  const token = getGatewayToken();
-
-  const session = await createBrowserSession();
-  const client = new KanbanClient(session.page, {
-    toolTimeoutMs: session.config.toolTimeoutMs,
-    shotgridRefreshCooldownMs: session.config.shotgridRefreshCooldownMs,
-    forcedShotgridProjectId: session.config.forcedShotgridProjectId,
-    sessionInfo: {
-      mode: session.mode,
-      baseUrl: session.baseUrl,
-      usesStaticFallback: session.usesStaticFallback === true
-    }
-  });
-  const handlers = createToolHandlers(client);
-  const manifest = createGatewayManifest();
-
-  const server = http.createServer(async (req, res) => {
+export function createGatewayRequestHandler({ host, port, token, session, handlers, manifest }) {
+  return async (req, res) => {
+    try {
     const method = String(req.method || '').toUpperCase();
     const url = new URL(req.url || '/', `http://${host}:${port}`);
 
@@ -143,7 +144,7 @@ export async function startAgentGateway() {
         const payload = await handler(args);
         jsonResponse(res, 200, { ok: true, payload });
       } catch (error) {
-        jsonResponse(res, 400, {
+        jsonResponse(res, error?.statusCode === 413 ? 413 : 400, {
           ok: false,
           error: String(error?.message || error)
         });
@@ -152,7 +153,36 @@ export async function startAgentGateway() {
     }
 
     jsonResponse(res, 404, { ok: false, error: 'Not found.' });
+    } catch {
+      if (!res.headersSent) {
+        jsonResponse(res, 400, { ok: false, error: 'Invalid request.' });
+      } else {
+        res.destroy();
+      }
+    }
+  };
+}
+
+export async function startAgentGateway() {
+  const host = String(process.env.UTS_AGENT_GATEWAY_HOST || DEFAULT_HOST).trim() || DEFAULT_HOST;
+  const port = Number.parseInt(String(process.env.UTS_AGENT_GATEWAY_PORT || DEFAULT_PORT), 10) || DEFAULT_PORT;
+  const token = getGatewayToken();
+
+  const session = await createBrowserSession();
+  const client = new KanbanClient(session.page, {
+    toolTimeoutMs: session.config.toolTimeoutMs,
+    shotgridRefreshCooldownMs: session.config.shotgridRefreshCooldownMs,
+    forcedShotgridProjectId: session.config.forcedShotgridProjectId,
+    sessionInfo: {
+      mode: session.mode,
+      baseUrl: session.baseUrl,
+      usesStaticFallback: session.usesStaticFallback === true
+    }
   });
+  const handlers = createToolHandlers(client);
+  const manifest = createGatewayManifest();
+
+  const server = http.createServer(createGatewayRequestHandler({ host, port, token, session, handlers, manifest }));
 
   await new Promise((resolve, reject) => {
     server.once('error', reject);
